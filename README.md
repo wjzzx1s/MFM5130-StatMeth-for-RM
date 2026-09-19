@@ -106,36 +106,6 @@ denotes the $\alpha$-quantile of the loss and $\overline{F}_L$ the survival func
 | 6 | Heavy-tailedness, $L_1,L_2$ iid with $\mathbb{P}(L_1>x)=x^{-1/2}$, $x\ge1$ | $\mathbb{E}(L_1)=\infty$ (the density is $\tfrac12x^{-3/2}$); the MGF is infinite for every $t>0$; the exact two-variable tail $\mathbb{P}(L_1+L_2>x)=2\sqrt{x-1}/x$ for $x\ge2$ (computed with the substitution $u=x\sin^2\theta$); hence VaR is superadditive: with $q=(1-\alpha)^{-2}$ one gets $\mathrm{VaR}_\alpha(L_1+L_2)=2\big(1+\sqrt{2\alpha-\alpha^2}\big)/(1-\alpha)^2>2q$. |
 | 7 | Skewness: 100 independent bonds, loss $-2$ with probability $0.99$ and $100$ with probability $0.01$ | Both strategies have expected loss $-98$; with $D\sim\mathrm{B}(100,0.01)$ defaults, $\mathcal{P}_1=102D-200$ gives $\mathrm{VaR}_{0.95}(\mathcal{P}_1)=106$ (CDF table for $D=0,\dots,4$: $0.366032$, $0.735762$, $0.920627$, $0.981626$, $0.996568$), while the concentrated portfolio $\mathcal{P}_2=100L_1$ gives $\mathrm{VaR}_{0.95}(\mathcal{P}_2)=-200$. VaR therefore ranks the concentrated portfolio as the safer one even though it carries a $1\%$ chance of a $10{,}000$ loss — the skewness face of the failure of subadditivity. |
 
-**Review and corrections.** The solutions were re-checked against the numerics and the following
-were repaired:
-
-* the course code in the title block said *MFM 5210* — a copy-paste from the other course; it is now
-  *MFM 5130*;
-* the second ES representation in Problem 2 was malformed: it read as if the quantile were
-  evaluated at $1-\alpha-\overline{F}_L(q)$ instead of being multiplied by it;
-* in the derivation of the quantile function of $Y=(L-q)_+$ the defining condition was written
-  $F_L(y+q)\le u$ instead of $F_L(y+q)\ge u$;
-* in Problem 4 the Student-$t$ density carried $\Gamma\big(\tfrac{\nu-1}{2}\big)$ in four places
-  instead of $\Gamma\big(\tfrac{\nu+1}{2}\big)$ — the constant $c$ is only correct with the latter;
-* $\Phi^{-1}(X)$ instead of $\Phi^{-1}(\alpha)$ in the normal case; $x$ instead of $p$ in the
-  quantile equation of Problem 6; $100l_1$ instead of $100L_1$;
-* the rejected root $p'$ of the quadratic in Problem 6 was eliminated with the wrong argument
-  ("$\alpha=0$ or $\alpha=2$"); the correct statement is $p'\ge2\iff 2\alpha-\alpha^2=1\iff\alpha=1$,
-  so $p'<2$ for every $\alpha\in(0,1)$;
-* the last step of the Gaussian ratio limit relied on an expansion with the wrong next-order term;
-  it is now $1\big/\big(1-(1-\Phi(u))/(u\varphi(u))\big)\to1$ since
-  $(1-\Phi(u))/(u\varphi(u))\sim u^{-2}\to0$;
-* wording and typos: "probability distribution function" for a density, "the expectation of moment
-  generating function", "fomula", "probablity", "cumulated" for cumulative, missing space after
-  "(Skewness)" and before "(portfolios)", a missing $\mathrm{d}x$, a missing comment marker on the
-  commented-out `hyperref` line, and the two Chinese comments in the table block translated for
-  consistency.
-
-All numbers were re-verified independently: the binomial PMF/CDF table, $\mathbb{E}(L_i)=-0.98$ and
-$\mathrm{VaR}_{0.95}(\mathcal{P}_1)=106$; the roots $q$, $p$, $p'$ of the Pareto quadratic; and the
-tail $2\sqrt{x-1}/x$ by Monte Carlo. The rebuilt `hw1.pdf` is 10 pages with no unresolved
-references and the header now reads *MFM 5130*.
-
 ## Note on the derivations
 
 `Lecture-01.tex` deliberately does more than the slides: the white-board steps are filled in and,
