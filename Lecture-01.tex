@@ -1,0 +1,1014 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[head=2cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\VaR}{\operatorname{VaR}}
+\newcommand{\ES}{\operatorname{ES}}
+\newcommand{\Par}{\operatorname{Par}}
+\newcommand{\Exp}{\operatorname{Exp}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\ind}[1]{\mathbbm{1}_{\{#1\}}}
+
+% Marker used for everything that is *not* on the slides: details that were
+% left to the (black/white) board, or steps of a proof that were only sketched.
+\newcommand{\der}[1]{\medskip\noindent\textbf{Derivation (#1).}\ }
+\newcommand{\selfcheck}[1]{\medskip\noindent\textbf{Remark (self-check).}\ \textit{#1}}
+
+\title{\bfseries Statistical Methods for Risk Modelling (MFM5130)\\[2mm]
+\large Lecture 1 --- Basics of Quantitative Risk Management\thanks{Summary of the slides of Yang Liu (CUHK-Shenzhen, Fall 2026), based on
+A.\,J.\,McNeil, R.\,Frey, P.\,Embrechts (2015), \emph{Quantitative Risk Management}, Princeton University Press,
+and on \url{https://qrmtutorial.org/}. All steps that the slides left to the board are written out below and
+flagged with \textbf{Derivation}.}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{Quantitative Risk Management and Market Risk}
+
+\subsection{What is risk?}
+Risk is any event or action that may adversely affect an organization's ability to achieve its
+objectives and to execute its strategies; it is strongly related to uncertainty/randomness. The
+course focuses on \emph{statistical} methods for
+\begin{itemize}[nosep]
+  \item \textbf{market risk}: the risk of losses in positions arising from movements in market prices;
+  \item \textbf{credit risk}: the risk of a counterparty failing to meet its obligations in accordance
+        with agreed terms (default);
+  \item \textbf{operational risk}: the risk of a loss resulting from inadequate or failed internal
+        processes, people, systems, or external events.
+\end{itemize}
+
+\subsection{The ABC of QRM and market risk}
+Risks are random variables, usually aggregated in a portfolio. We work on a probability space
+$(\Omega,\mathcal{F},\P)$; $X$ is a random variable (rv) and $x=X(\omega)$ a realisation
+($\omega$ = state of nature).
+
+For market risk we consider
+\[
+V_t=\text{value of a portfolio }P\text{ at time }t,
+\]
+where a portfolio $P$ is a collection of financial products (stocks, bonds, derivatives, loans);
+determining its value (valuation of financial products) is the hard part. Time $t$ typically means
+\emph{today}: $V_t$ is assumed known/observable and is then written $v_t$. We are interested in the
+future value $V_{t+1}$ of $P$ (a rv), where ``$t+1$'' means one period ahead, e.g.\ 10 days (market
+risk), 1 year (credit and operational risk), 20 years (pension funds).
+
+The \textbf{profit-and-loss (P\&L) variable} of $P$ is
+\begin{equation}\label{eq:PL}
+  PL_{t+1}=L_{t+1}=-(V_{t+1}-v_t),
+\end{equation}
+where, by convention, losses (which QRM mainly cares about) live in the right tail of the
+distribution function (df) of $L_{t+1}$. Ultimately we want the \emph{loss distribution} of
+$L_{t+1}$, or some statistics of it (such as high quantiles). Note that we look at \emph{changes} in
+$V_t$ rather than at absolute values --- otherwise we would compare apples and pears.
+
+\paragraph{Risk mapping.} The mapping of risks is a representation
+\begin{equation}\label{eq:mapping}
+  V_t=f(t,\mathbf{Z}_t),
+\end{equation}
+where $f$ is a measurable function, the \emph{structure function} of $P$, and $\mathbf{Z}_t$ is a
+$d$-dimensional random vector of \emph{risk factors} ($d$ often 1000--10000), e.g.\ (logarithmic)
+asset prices or exchange rates. The one-period \emph{risk-factor changes} (or (log-)returns) are
+\[
+  \mathbf{X}_t=\mathbf{Z}_t-\mathbf{Z}_{t-1},
+\]
+and finding models for $(\mathbf{X}_t)_t$ is the business of econometrics.
+
+\begin{example}[Two stock price series]
+For two historical stock price series $(S_{t,j})_{t}$, $j\in\{1,2\}$ (BMW, Siemens; 1972 days), one
+plots $(S_{t,j})_t$ and the log-returns $(X_{t,j}=\log(S_{t,j}/S_{t-1,j}))_t$. The price levels
+exhibit trends and non-stationarity, the log-returns look (approximately) stationary with
+volatility clustering --- which is why we model the $X$'s and not the $S$'s.
+\end{example}
+
+\subsection{From risk factors to the loss}
+Plugging the risk-factor changes into \eqref{eq:mapping} gives
+\begin{equation}\label{eq:losscalc}
+  \begin{aligned}
+    L_{t+1}&=-(V_{t+1}-v_t)=-\big(f(t+1,\mathbf{Z}_{t+1})-f(t,\mathbf{z}_t)\big)\\
+            &=-\big(f(t+1,\mathbf{z}_t+\mathbf{X}_{t+1})-f(t,\mathbf{z}_t)\big)
+             =\ell_{[t]}(\mathbf{X}_{t+1}),
+  \end{aligned}
+\end{equation}
+where $\ell_{[t]}(\cdot)$ is the \emph{loss operator} (which banks have to compute/estimate on a
+daily basis). The loss distribution is thus determined by the distribution of $\mathbf{X}_{t+1}$;
+note that $\ell_{[t]}(\cdot)$ can be highly nonlinear.
+
+\begin{example}[Portfolio of $d$ stocks]\label{ex:stocks}
+Let $P$ consist of $d$ stocks $S_{t,1},\dots,S_{t,d}$, where $S_{t,j}$ is the value of stock $j$ at
+time $t$ and $\beta_j$ is the number of shares of stock $j$. The structure function is linear,
+\[
+  V_t=f(t,\mathbf{Z}_t)=\sum_{j=1}^d \beta_j S_{t,j}
+      =\sum_{j=1}^d \beta_j \exp(Z_{t,j}),
+  \qquad Z_{t,j}=\log S_{t,j},
+\]
+and the risk-factor changes are the log-returns
+$X_{t+1,j}=\log(S_{t+1,j}/S_{t,j})$. Hence
+\begin{equation}\label{eq:stockPL}
+  \begin{aligned}
+    L_{t+1}&=-(V_{t+1}-v_t)
+      =\sum_{j=1}^d \beta_j\big(\exp(Z_{t+1,j})-\exp(z_{t,j})\big)\\
+      &=\sum_{j=1}^d \beta_j\big(\exp(z_{t,j}+X_{t+1,j})-\exp(z_{t,j})\big)
+      =\sum_{j=1}^d \tilde w_{t,j}\big(\exp(X_{t+1,j})-1\big),
+  \end{aligned}
+\end{equation}
+with $\tilde w_{t,j}=\beta_j s_{t,j}$ and $w_{t,j}=\tilde w_{t,j}/v_t$ the relative value of stock
+$j$ in $P$. The loss operator is therefore
+\begin{equation}\label{eq:stocklossop}
+  \ell_{[t]}(\mathbf{x})=\sum_{j=1}^d \tilde w_{t,j}\big(\exp(x_j)-1\big).
+\end{equation}
+\end{example}
+
+\paragraph{Key task of QRM.} Based on models and statistical estimates (data) for
+$(\mathbf{X}_{t+1})_t$, find the df (or a risk measure) of $L_{t+1}$. There are several
+possibilities for ``the df''.
+
+\subsection{Conditional versus unconditional loss distribution}
+\begin{enumerate}[label=\arabic*)]
+  \item \textbf{Conditional} distribution of $L_{t+1}$ given the history up to and including time $t$:
+        \[
+          F_{L_{t+1}\mid\mathcal{F}_t}(x)=\P(L_{t+1}\le x\mid\mathcal{F}_t),
+        \]
+        where $(\mathcal{F}_t)_t$ is the filtration of the underlying process
+        $(\mathbf{X}_t)_t$: roughly, $\mathcal{F}_t$ contains the historical information of the
+        risk-factor changes up to and including time $t$. We then ask for the distribution of
+        $L_{t+1}=\ell_{[t]}(\mathbf{X}_{t+1})$ given $\mathcal{F}_t$, i.e.\ the conditional
+        (predictive) loss distribution for the next interval. This forces us to model the dynamics
+        of the risk-factor time series and, in particular, to predict volatility --- the most
+        suitable approach to market risk.
+  \item \textbf{Unconditional} distribution, assuming $(\mathbf{X}_t)_t$ is a stationary time
+        series:
+        \[
+          F_{L_{t+1}}(x)=\P(L_{t+1}\le x)
+        \]
+        for a generic risk-factor-change vector $\mathbf{X}$ with the same distribution
+        $F_{\mathbf{X}}$ as $\mathbf{X}_t,\mathbf{X}_{t-1},\dots$. Neglecting the dynamics
+        inevitably leads to this view; it is typical in credit risk and sensible for long horizons.
+\end{enumerate}
+The issue only arises because of the time-series properties of $(\mathbf{X}_t)_{t\in\mathbb N}$: if
+the $\mathbf{X}_t$ are iid random vectors it does not arise, but for a strongly stationary
+multivariate time series the two cases must be distinguished. If the risk-factor changes cannot be
+assumed stationary for at least some window of time reaching from the present into the intermediate
+past, any statistical analysis of the loss distribution is difficult. We shall mainly work with the
+\textbf{unconditional} case --- typically the simpler approach (``reality'' lies somewhere in
+between).
+
+\subsection{Linearization of the loss operator}
+Recall \eqref{eq:losscalc}: $L_{t+1}= -\big(f(t+1,\mathbf{z}_t+\mathbf{X}_{t+1})-f(t,\mathbf{z}_t)\big)
+=\ell_{[t]}(\mathbf{X}_{t+1})$. Assume the structure function $f$ is differentiable and use a
+first-order (Taylor) approximation: the \emph{linearized loss} $L^{\Delta}_{t+1}$ is
+\begin{equation}\label{eq:linloss}
+  L_{t+1}\;\leftarrow\;L^{\Delta}_{t+1}
+   =-\Big(f_t(t,\mathbf{z}_t)+\sum_{j=1}^d f_{z_j}(t,\mathbf{z}_t)\,X_{t+1,j}\Big),
+\end{equation}
+where $f_t=\partial f/\partial t$ (the mapping explicitly features time only for derivative
+portfolios; the term $f_t(t,\mathbf{z}_t)$ is then sometimes neglected) and
+$f_{z_j}=\partial f/\partial z_j$, $j\in\{1,\dots,d\}$, are the partial derivatives with respect to
+the $j$-th risk factor. The \emph{linearized loss operator} is accordingly
+\begin{equation}\label{eq:linlossop}
+  \ell_{[t]}(\mathbf{x})\;\approx\;\ell^{\Delta}_{[t]}(\mathbf{x})
+   =-\Big(f_t(t,\mathbf{z}_t)+\sum_{j=1}^d f_{z_j}(t,\mathbf{z}_t)\,x_j\Big).
+\end{equation}
+Linearization is convenient since linear functions of the risk-factor changes are much easier to
+handle analytically --- crucial for the \emph{variance--covariance method}. The approximation is
+good over short horizons and for portfolios that are nearly linear in the risk-factor changes, and
+typically poor under extremes (e.g.\ extreme market behaviour).
+
+\begin{example}[Example \ref{ex:stocks} revisited]
+There is no explicit time dependence in the mapping $V_t=\sum_j\beta_j\exp(z_{t,j})$, and
+\[
+  f_{z_j}(t,\mathbf{z}_t)=\beta_j\exp(z_{t,j}),\qquad j\in\{1,\dots,d\}.
+\]
+Hence the linearized loss \eqref{eq:linloss} is
+\[
+  L^{\Delta}_{t+1}=\sum_{j=1}^d \beta_j \exp(z_{t,j})\,X_{t+1,j}
+                  =\sum_{j=1}^d \tilde w_{t,j} X_{t+1,j},
+\]
+which should be compared with the exact formula \eqref{eq:stockPL}.
+\der{the linearized loss for a call option}
+We only need to check the derivatives, since \eqref{eq:linloss} is just Taylor's formula:
+\[
+  \frac{\partial}{\partial x_j}\Big[\tilde w_{t,j}\big(e^{x_j}-1\big)\Big]\Big|_{x_j=0}
+  =\tilde w_{t,j}e^{x_j}\big|_{x_j=0}=\tilde w_{t,j},
+\]
+i.e.\ the first-order term of $e^{x}-1$ is $x$ itself. This is the algebraic reason why the
+linearized loss is the ``delta-weighted return'' of the portfolio.
+\end{example}
+
+\begin{example}[Example 1.5: European call, the Greeks]\label{ex:bs}
+Let $P$ consist of one standard European call on a non-dividend-paying stock $S$ with maturity $T$
+and strike $K$. The Black--Scholes value at time $t$ is
+\begin{equation}\label{eq:BS}
+  C^{BS}(t,S;r,\sigma)=S\Phi(d_1)-Ke^{-r(T-t)}\Phi(d_2),
+\end{equation}
+where $\Phi$ is the standard normal df, $r$ the risk-free rate, $\sigma$ the volatility of $S$, and
+\[
+  d_1=\frac{\log(S/K)+\big(r+\sigma^2/2\big)(T-t)}{\sigma\sqrt{T-t}},
+  \qquad d_2=d_1-\sigma\sqrt{T-t}.
+\]
+In reality interest rates and volatilities fluctuate, so they enter the risk-factor vector:
+\[
+  \mathbf{Z}_t=(\log S_t,\; r_t,\; \sigma_t),\qquad
+  \mathbf{X}_t=\big(\log(S_t/S_{t-1}),\; r_t-r_{t-1},\; \sigma_t-\sigma_{t-1}\big).
+\]
+Measuring time in years (as in \eqref{eq:BS}) and taking the horizon $\Delta=1/250$ (one day), the
+mapping for year $t$ reads
+\[
+  V_t=f(t,\mathbf{Z}_t)=C^{BS}(t\Delta,S_t;r_t,\sigma_t),
+  \qquad\text{so}\qquad
+  f_t(t,\mathbf{Z}_t)=C^{BS}_t(t\Delta,S_t;r_t,\sigma_t)\,\Delta .
+\]
+For a derivative position one usually computes the linearized loss, here with $d=3$ factors:
+\[
+  L^{\Delta}_{t+1}=-\Big(f_t(t,\mathbf{z}_t)+\sum_{j=1}^{3}f_{z_j}(t,\mathbf{z}_t)X_{t+1,j}\Big)
+                 =-\Big(C^{BS}_t\Delta
+                        +C^{BS}_S X_{t+1,1}+C^{BS}_r X_{t+1,2}+C^{BS}_\sigma X_{t+1,3}\Big),
+\]
+in terms of the partial derivatives of the Black--Scholes formula. The Greeks enter:
+$C^{BS}_t$ (theta), $C^{BS}_S$ (delta), $C^{BS}_r$ (rho), $C^{BS}_\sigma$ (vega).
+\der{$f_t=C^{BS}_t\Delta$}
+$V_t=C^{BS}(t\Delta,S_t;r_t,\sigma_t)$; differentiating with respect to the (yearly) calendar
+variable $t$ only hits the first argument, $u=t\Delta$, and $\partial u/\partial t=\Delta$. Hence
+$f_t=\Delta\cdot\partial_{u}C^{BS}(u,S_t;r_t,\sigma_t)=C^{BS}_t\Delta$.
+\selfcheck{the delta hedge of \eqref{eq:BS} is a special case of \eqref{eq:linloss}: for
+$K\to0$ (or $S\gg K$) one has $\Phi(d_1)\to1$ so $C^{BS}_S\to1$ and the linearized loss of the option
+coincides with that of a linear position in $S$ --- linearisation only ``sees'' the local
+behaviour.}
+\end{example}
+
+\subsection{The P\&L ansatz}
+Summarising, the standard programme is
+\[
+  L_{t+1}=\ell_{[t]}(\mathbf{X}_{t+1}),\quad \mathbf{X}_{t+1}\in\real^d,\ d\ \text{large};
+\]
+find a (strongly) stationary model for $\mathbf{X}_{t+1}$; then calculate
+$F_{L_{t+1}}(x)=\P(L_{t+1}\le x)$.
+\begin{remark}
+Finding $F_{L_{t+1}}$ for a general $f$ or $\ell_{[t]}(\cdot)$ is mostly very difficult and rarely
+possible, so one aims at \emph{summarising} $F_{L_{t+1}}$. Practice came up with reductions from
+$F_{L_{t+1}}$ to so-called \emph{risk measures}.
+\end{remark}
+
+\section{Risk Measures}
+
+\subsection{Three approaches to risk measurement}
+\begin{itemize}[nosep]
+  \item \textbf{Factor sensitivity measures}: give the change in portfolio value for a given
+        predetermined change in one underlying risk factor (the Greeks, duration, \dots).
+  \item \textbf{Scenario-based risk measures}: consider a number of future scenarios and measure the
+        maximum loss of the portfolio under these scenarios (stress tests).
+  \item \textbf{Risk measures based on loss distributions}: statistical quantities describing
+        characteristics of the loss distribution of the portfolio.
+\end{itemize}
+They are used for
+\begin{itemize}[nosep]
+  \item \textbf{determination of risk capital}: the amount of capital needed as a buffer against
+        (unexpected) future losses to satisfy a regulator;
+  \item \textbf{management tool}: internal limit systems;
+  \item \textbf{insurance premia}: a risk measure can be seen as a measure of riskiness of insured
+        claims.
+\end{itemize}
+\emph{Our interpretation}: a risk measure gives the amount of capital that needs to be \emph{added}
+to a position with loss $L$ so that the position becomes acceptable to an (internal/external)
+regulator.
+
+Risk measures based on loss distributions attempt to quantify the riskiness of a portfolio. The most
+popular ones (VaR, ES) describe the right tail of the loss distribution of $L_{t+1}$. Having decided
+between conditional/unconditional modelling we simply denote the df of the loss $L=L_{t+1}$ by $F_L$,
+$F_L(x)=\P(L\le x)$.
+
+\paragraph{Historical remarks.} 1994: Weatherstone 4 report (J.P.\ Morgan; RiskMetrics).
+Oct 1994: founding of ETH RiskLab (what \emph{is} a risk measure?). 1999: Artzner et al.\ (1999):
+coherent risk measures.
+
+\subsection{Coherent risk measures}
+\paragraph{Notation.} $L^0(\Omega,\mathcal{F},\P)$ is the space of bounded rvs; $M\subseteq
+L^0$ is a convex cone ($L_1,L_2\in M\Rightarrow L_1+L_2\in M$; $L\in M,\lambda>0\Rightarrow\lambda L
+\in M$). A \textbf{risk measure} is a map
+\[
+  \rho:M\to\real,\qquad L\mapsto\rho(L).
+\]
+If the underlying position ($L$) is acceptable, the extra risk capital $\rho(L)$ is needed for
+holding $L$. Note that $\rho(L)$ for the (future) loss $L$ is \emph{today's} money, i.e.\ it is
+computed from today's portfolio $P$.
+
+\begin{definition}[Axioms of coherence, Artzner et al.\ 1999]
+$\rho$ is \textbf{coherent} if
+\begin{enumerate}[label=(Ax\arabic*),leftmargin=*]
+  \item \textbf{Translation invariance}: $\forall L\in M,\ \forall l\in\real:\
+        \rho(L+l)=\rho(L)+l$;
+  \item \textbf{Subadditivity}: $\forall L_1,L_2\in M:\
+        \rho(L_1+L_2)\le\rho(L_1)+\rho(L_2)$;
+  \item \textbf{Positive homogeneity}: $\forall L\in M,\ \lambda>0:\ \rho(\lambda L)=\lambda\rho(L)$;
+  \item \textbf{Monotonicity}: $\forall L_1,L_2\in M,\ L_1\le L_2$ (a.s.):\
+        $\rho(L_1)\le\rho(L_2)$.
+\end{enumerate}
+\end{definition}
+
+\paragraph{Questions.}
+(Q1) Do coherent risk measures exist? Is there a characterisation?
+(Q2) What about existing risk measures in practice --- are they coherent?
+(Q3) Does coherence matter?
+
+\paragraph{(Partial) answers.} (A3) It does matter, as the course will show.
+(A1) Let $M^1=\{\P:\P$ a probability measure on $(\Omega,\mathcal{F})\}$, let
+$\mathcal{P}\subseteq M^1$ be a set of \emph{scenarios}, and
+\[
+  M_{\mathcal{P}}=\big\{L\in M:\E^{\P}|L|<\infty\ \ \forall\P\in\mathcal{P}\big\}.
+\]
+One risk measure is
+\[
+  \rho_{\mathcal{P}}:M_{\mathcal{P}}\to\real,\qquad
+  L\mapsto\rho_{\mathcal{P}}(L)=\sup_{\P\in\mathcal{P}}\E^{\P}[L],
+\]
+i.e.\ \textbf{the worst expected loss over all scenarios}.
+
+\begin{proposition}[Prop.\ 1.7 in MFE (2015); postponed]
+\begin{enumerate}[label=\arabic*),leftmargin=*]
+  \item For all $\mathcal{P}$: $\rho_{\mathcal{P}}$ is coherent.
+  \item Suppose $\Omega=\{\omega_1,\dots,\omega_N\}$ is finite and $M=\{L:\Omega\to\real\}$. Then a
+        risk measure $\rho$ is coherent on $M$ if and only if there exists
+        $\mathcal{P}\in M^1$ with $\rho=\rho_{\mathcal{P}}$.
+\end{enumerate}
+\end{proposition}
+Roughly speaking, 1) covers \emph{existence} and 2) \emph{uniqueness} of coherent risk measures.
+
+\subsection{Generalised inverses}
+\begin{definition}
+Let $F$ be a df on $\real$. For all $\alpha\in(0,1)$,
+\[
+  q_\alpha(F)=F^{\leftarrow}(\alpha)=\inf\{x\in\real:F(x)\ge\alpha\}
+\]
+denotes the $\alpha$-\emph{quantile} of $F$; $q_{1/2}(F)$ is the median of $F$.
+\end{definition}
+\begin{remark}
+If $F$ is strictly increasing and continuous, then $F^{\leftarrow}=F^{-1}$ (ordinary inverse
+function); further properties of generalised inverses are given in the book (MFE 2015,
+Section 2.1/Appendix A).
+\end{remark}
+
+\subsection{Value-at-Risk and Expected Shortfall}
+\begin{definition}[Value-at-Risk]
+Given a confidence level $\alpha\in(0,1)$,
+\[
+  \VaR_\alpha=\VaR_\alpha(L)=F_L^{\leftarrow}(\alpha)
+   =\inf\{x\in\real:F_L(x)\ge\alpha\}.
+\]
+\end{definition}
+\begin{definition}[Expected shortfall]
+For a loss $L\sim F_L$ with $\E|L|<\infty$, the expected shortfall at level $\alpha\in(0,1)$ is
+\[
+  \ES_\alpha=\ES_\alpha(L)=\frac{1}{1-\alpha}\int_\alpha^1 \VaR_u(L)\dd u .
+\]
+\end{definition}
+
+\paragraph{Comments.} VaR is the primary risk measure, ES an alternative. $\VaR_\alpha$ is simply the
+$\alpha$-quantile of $F_L$; ES is the average loss when VaR is exceeded and thus conveys information
+about the frequency \emph{and} size of large losses --- ES is a ``what-if'' risk measure.
+Trivially $\ES_\alpha(L)\ge\VaR_\alpha(L)$ (the average of the upper tail exceeds its lower end), and
+ES is also known as Conditional Value-at-Risk (CVaR).
+
+\begin{proposition}[ES is a tail expectation]\label{prop:ES-tails}
+If $F_L$ is continuous, then
+\[
+  \ES_\alpha(L)=\E\big[L\,\big|\,L\ge\VaR_\alpha(L)\big].
+\]
+If moreover $F_L$ is absolutely continuous with density $f_L$, then
+\[
+  \ES_\alpha(L)=\frac{1}{1-\alpha}\int_{\VaR_\alpha(L)}^{\infty}x f_L(x)\dd x .
+\]
+\end{proposition}
+\der{Proposition \ref{prop:ES-tails} --- this is the ``(white board)'' computation}
+\emph{Step 1 (change of variables).} Substitute $u=F_L(x)$ in the defining integral. Since $F_L$ is
+continuous and (for the second part) absolutely continuous on $[\VaR_\alpha(L),\infty)$, we have
+$\dd u=f_L(x)\dd x$, and by continuity $F_L(\VaR_\alpha(L))=\alpha$ (no jump can make the df overshoot
+$\alpha$ at the quantile). Moreover $u\uparrow1\iff x\uparrow\infty$ and $u\downarrow\alpha\iff
+x\downarrow\VaR_\alpha(L)$, so
+\[
+  \int_\alpha^1 \VaR_u(L)\dd u
+   =\int_{\VaR_\alpha(L)}^{\infty} x\,f_L(x)\dd x .
+\]
+\emph{Step 2 (rewrite as a conditional expectation).} For a continuous $F_L$,
+$\P\big(L\ge\VaR_\alpha(L)\big)=1-F_L(\VaR_\alpha(L))=1-\alpha$ (the two-sided version
+$\P(L>\VaR_\alpha)=1-\alpha$ holds as well because $\P(L=\VaR_\alpha(L))=0$). Therefore
+\[
+  \int_{\VaR_\alpha(L)}^{\infty}x f_L(x)\dd x
+   =\E\big[L\ind{L\ge\VaR_\alpha(L)}\big]
+   =(1-\alpha)\,\E\big[L\,\big|\,L\ge\VaR_\alpha(L)\big],
+\]
+which gives both statements after dividing by $1-\alpha$. \hfill$\square$
+\selfcheck{continuity is essential here. If $F_L$ has an atom at $\VaR_\alpha(L)$ --- say
+$F_L(\VaR_\alpha(L)^-)=f<\alpha=F_L(\VaR_\alpha(L))$ --- then the tail event has probability
+$1-f>1-\alpha$, and the level-$\alpha$ ES is given by the mixture
+\[
+  \ES_\alpha(L)=\frac{1}{1-\alpha}\Big(\E\big[L\ind{L\ge\VaR_\alpha(L)}\big]
+                +\VaR_\alpha(L)\big(F_L(\VaR_\alpha(L)^-)-\alpha\big)\Big),
+\]
+which for every integrable $L$ can be rewritten as
+\[
+  \ES_\alpha(L)=\E\big[L\mid L\ge\VaR_\alpha(L)\big]
+   +\frac{\alpha-f}{1-\alpha}\Big(\E\big[L\mid L\ge\VaR_\alpha(L)\big]-\VaR_\alpha(L)\Big)
+   \;\ge\;\E\big[L\mid L\ge\VaR_\alpha(L)\big],
+\]
+with equality if and only if $f=\alpha$. In exercise 1.12 below the df is continuous (normal,
+Pareto, $t$), so the simple formula applies.}
+
+\subsection{Practical application}
+In banking practice $\VaR=\VaR^M_{\alpha,T}(F_L)$: VaR depends on the significance level $\alpha$, the
+holding time $T$, a statistical estimation method $M$, etc. It is a statistical quantity that has to
+be estimated from data $\Rightarrow$ statistical uncertainty (see BIS 2012, p.\ 41, Question 8).
+Typical choices:
+\[
+\begin{array}{ll}
+  \text{Market risk:} & \alpha=0.99,\ T=10\ \text{d (2 trading weeks)},\\
+  \text{Credit and operational risk:} & \alpha=0.999,\ T=1\ \text{a},\\
+  \text{Economic capital:} & \alpha=0.9997,\ T=1\ \text{a}.
+\end{array}
+\]
+Overall, estimating such high quantiles requires extreme value theory.
+``$\VaR_\alpha(L_1+L_2)$ for $L_i\sim \N(\mu_i,\sigma_i^2)$'' is a meaningless statement unless the
+joint df of $(L_1,L_2)$ (marginals \emph{and} dependence) is specified.
+
+\section{Heavy-Tailed Distributions}
+
+\subsection{Definition}
+A probability distribution has a \textbf{heavy tail} if its tails decay more slowly than those of an
+exponential distribution, i.e.\ the probability of extreme values is significantly higher than for
+light-tailed distributions such as the normal. Formally, a distribution with df $F$ and survival
+function $\bar F(x)=1-F(x)$ is heavy-tailed if
+\[
+  \E\big[e^{tX}\big]=\infty\qquad\text{for all }t>0,
+\]
+i.e.\ the moment generating function (MGF) does not exist for any positive $t$. This implies that the
+distribution assigns relatively high probability to large deviations from the mean. Heavy tails are
+associated with frequent extreme events/outliers and with slow (e.g.\ power-law) decay of the
+survival function, whereas light-tailed distributions (normal, exponential) have rapidly decaying
+tails (exponential or faster).
+\der{why ``no MGF'' is the same as ``tails heavier than exponential''}
+Let $X\ge0$ with survival $\bar F$. Then
+\[
+  \E\big[e^{tX}\big]=\int_0^\infty e^{tx}f(x)\dd x
+    =\underbrace{\big[-e^{tx}\bar F(x)\big]_0^\infty}_{\bar F(0)+\ \text{boundary}}
+     +t\int_0^\infty e^{tx}\bar F(x)\dd x
+\]
+by integration by parts, so $\E[e^{tX}]<\infty$ for some $t>0$ requires $\bar F(x)$ to decay faster
+than $e^{-tx}$ for \emph{that} $t$; requiring the failure of finiteness \emph{for every} $t>0$ means
+$\bar F\ge e^{-tx}$ infinitely often for every $t>0$ --- exactly ``slower than any exponential''.
+For a Pareto tail $\bar F(x)=x^{-1/\xi}$ this holds trivially, and for the Cauchy and the Student-$t$
+distribution as well.
+
+\subsection{Example 1: the Pareto distribution}
+The Pareto distribution is the classic heavy-tailed model (income, wealth, city sizes, insurance
+claims). In the one-parameter (``tail'') parametrisation used in this course,
+\[
+  \bar F(x)=\P(X>x)=\Big(\frac{x_m}{x}\Big)^{\alpha},\qquad x\ge x_m>0,
+\]
+with scale $x_m$ (minimum value) and shape/tail index $\alpha>0$. The pdf is
+\[
+  f(x)=\frac{\alpha x_m^{\alpha}}{x^{\alpha+1}},\qquad x\ge x_m .
+\]
+The tail decays polynomially (power law), much slower than exponential decay; for small $\alpha$ the
+tail is very heavy. \textbf{Moments:} $\E[X^k]$ exists if and only if $k<\alpha$: for $\alpha\le1$ the
+mean is infinite, for $\alpha\le2$ the variance is infinite --- a prime example of a distribution with
+possibly undefined mean or variance.
+\der{moment condition $k<\alpha$}
+For $x_m=1$ (the general case is the same up to constants),
+\[
+  \E[X^k]=\int_1^\infty x^k\,\alpha x^{-\alpha-1}\dd x
+         =\alpha\int_1^\infty x^{k-\alpha-1}\dd x
+         =\alpha\Big[\frac{x^{k-\alpha}}{k-\alpha}\Big]_1^\infty ,
+\]
+which is finite iff $k-\alpha<0$, i.e.\ $k<\alpha$ (then $\E[X^k]=\alpha/(\alpha-k)$).
+
+\subsection{Example 2: the Cauchy distribution}
+\[
+  f(x)=\frac{1}{\pi\gamma}\cdot\frac{1}{1+\big(\frac{x-x_0}{\gamma}\big)^2},\qquad x\in\real,
+\]
+where $x_0$ is a location and $\gamma>0$ a scale parameter; the standard Cauchy has $x_0=0,\gamma=1$:
+$f(x)=1/\big(\pi(1+x^2)\big)$.
+Despite its bell shape the Cauchy distribution is heavy-tailed: its survival function decays like
+$1/x$, so $\E|X|=\infty$ and $\E[X^2]=\infty$; the mean and variance \textbf{do not exist}. The sample
+mean of Cauchy data does not converge to a fixed value as $n\to\infty$ --- it remains erratic. The
+Cauchy is the Student-$t$ distribution with 1 degree of freedom.
+\der{survival, mean and variance of the standard Cauchy}
+The df is $F(x)=\tfrac12+\tfrac1\pi\arctan x$, hence
+\[
+  \bar F(x)=\tfrac12-\tfrac1\pi\arctan x=\frac1\pi\arctan\frac1x\sim\frac{1}{\pi x}\quad(x\to\infty),
+\]
+using $\arctan(1/x)=\pi/2-\arctan x$ and $\arctan y\sim y$ as $y\to0$. For the first absolute moment,
+\[
+  \E|X|=\frac{2}{\pi}\int_0^\infty\frac{x}{1+x^2}\dd x
+       =\frac{1}{\pi}\Big[\log(1+x^2)\Big]_0^\infty=\infty
+\]
+(logarithmic divergence). Moreover
+\[
+  \E[X^2]=\frac{2}{\pi}\int_0^\infty \frac{x^2}{1+x^2}\dd x
+        =\frac{2}{\pi}\int_0^\infty\Big(1-\frac{1}{1+x^2}\Big)\dd x
+        =\frac{2}{\pi}\Big[x-\arctan x\Big]_0^\infty=\infty,
+\]
+and $\E[X]=\int_\real x f(x)\dd x$ is not even well defined as a Lebesgue integral, since
+$\E|X|=\infty$. Note that the tail
+$\bar F(x)\sim1/(\pi x)$ is a Pareto tail with $\alpha=1$: by the moment condition above the first
+moment is exactly at the borderline and diverges.
+
+\subsection{Example 3: the Student-$t$ distribution}
+With $\nu$ degrees of freedom,
+\[
+  f(t)=\frac{\Gamma\big(\frac{\nu+1}{2}\big)}{\sqrt{\nu\pi}\;\Gamma\big(\frac{\nu}{2}\big)}
+        \Big(1+\frac{t^2}{\nu}\Big)^{-\frac{\nu+1}{2}},\qquad t\in\real,\ \nu>0 .
+\]
+For small $\nu$ (e.g.\ $\nu=1,2,3$) the tails are heavy: $f(t)\propto|t|^{-(\nu+1)}$, polynomial
+decay, so $1-F_L(x)\sim c_\nu x^{-\nu}$ (l'H\^opital's rule), a power law. Also:
+\begin{itemize}[nosep]
+  \item if $\nu>1$ the mean exists and equals $0$;
+  \item if $\nu>2$ the variance exists and equals $\nu/(\nu-2)$;
+  \item for $\nu\le2$ the variance is infinite;
+  \item as $\nu\to\infty$ the $t$-distribution approaches the normal distribution (light-tailed).
+\end{itemize}
+So the $t$-distribution is heavy-tailed for small $\nu$, which makes it useful in robust statistics and
+financial modelling.
+
+\der{power-law tail $\bar F(x)\sim c_\nu x^{-\nu}$}
+As $|t|\to\infty$,
+\[
+  f(t)\sim\frac{\Gamma\big(\frac{\nu+1}{2}\big)}{\sqrt{\nu\pi}\,\Gamma\big(\frac\nu2\big)}
+        \Big(\frac{t^2}{\nu}\Big)^{-\frac{\nu+1}{2}}
+       =\underbrace{\frac{\Gamma\big(\frac{\nu+1}{2}\big)\nu^{\nu/2}}
+                       {\sqrt{\nu\pi}\,\Gamma\big(\frac\nu2\big)}}_{=:c}
+        \,|t|^{-(\nu+1)} .
+\]
+Then, by l'H\^opital (both terms $\to0$),
+\[
+  \lim_{x\to\infty}\frac{\bar F(x)}{x^{-\nu}}
+   =\lim_{x\to\infty}\frac{f(x)}{\nu x^{-\nu-1}}
+   =\frac{c}{\nu},
+\]
+so $\bar F(x)\sim c_\nu x^{-\nu}$ with $c_\nu=c/\nu
+=\frac{\Gamma(\frac{\nu+1}{2})\nu^{\nu/2-1}}{\sqrt{\pi}\,\Gamma(\frac\nu2)}$.
+\der{$\nu/(\nu-2)$ for the variance and $\N(0,1)$ as $\nu\to\infty$}
+(i) $X\sim t_\nu$ can be written as $X=Z/\sqrt{V/\nu}$ with $Z\sim\N(0,1)\perp V\sim\chi^2_\nu$;
+$\E[X^2]=\E[Z^2]\E[\nu/V]=\nu\,\E[V^{-1}]=\nu/(\nu-2)$ for $\nu>2$
+(using $\E[V^{-1}]=1/(\nu-2)$ for $\chi^2_\nu$).
+(ii) For the density,
+\[
+  \Big(1+\frac{t^2}{\nu}\Big)^{-\frac{\nu+1}{2}}
+  =\underbrace{\Big[\Big(1+\frac{t^2}{\nu}\Big)^{\nu/2}\Big]^{-1}}_{\to\,e^{-t^2/2}}
+   \cdot\underbrace{\Big(1+\frac{t^2}{\nu}\Big)^{-1/2}}_{\to\,1},
+\]
+and the normalising constant converges by the classical asymptotics
+$\Gamma(z+a)/\Gamma(z)\sim z^{a}$: with $z=\nu/2$, $a=1/2$,
+\[
+  \frac{\Gamma\big(\frac{\nu+1}{2}\big)}{\sqrt{\nu\pi}\,\Gamma\big(\frac\nu2\big)}
+  =\frac{\Gamma\big(\frac{\nu}{2}+\frac12\big)}{\Gamma\big(\frac\nu2\big)\sqrt{\nu\pi}}
+  \sim\frac{(\nu/2)^{1/2}}{\sqrt{\nu\pi}}=\frac{1}{\sqrt{2\pi}},
+\]
+so $f_\nu(t)\to\varphi(t)$, the standard normal density.
+
+\subsection{Comparison with light-tailed distributions}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Distribution & Tail decay & Variance finite?\\
+\midrule
+Normal $\N(0,1)$ & exponential (fast) & yes\\
+Exponential $\Exp(1)$ & exponential & yes\\
+Pareto $\Par(\alpha=1.5)$ & power law (slow) & no\\
+Cauchy & power law & no\\
+$t$-distribution $(\nu=3)$ & power law & yes $(=3)$\\
+$t$-distribution $(\nu=1)$ & power law & no\\
+\bottomrule
+\end{tabular}
+\end{center}
+Expressed as survival tails (with the density exponent in brackets, as on the slide):
+\[
+\begin{array}{lll}
+\toprule
+\text{Distribution} & \bar F(x)\ \big(\text{density }f(x)\big) & \E[X^2]<\infty?\\
+\midrule
+\N(0,1) & \text{exponential},\ e^{-x^2/2} & \text{yes}\\
+\Exp(1) & e^{-x} & \text{yes}\\
+\Par(\alpha=1.5) & x^{-1.5}\ \big(f\sim x^{-2.5}\big) & \text{no}\\
+\text{Cauchy} & \sim \frac{1}{\pi x}\ \big(f\sim x^{-2}\big) & \text{no}\\
+t_\nu,\ \nu=3 & c_3x^{-3}\ \big(f\sim|t|^{-4}\big) & \text{yes }(=3)\\
+t_\nu,\ \nu=1 & c_1x^{-1}\ \big(f\sim|t|^{-2}\big) & \text{no}\\
+\bottomrule
+\end{array}
+\]
+Only the variance column is compared here; note that the tail decay of the survival function is the
+relevant quantity for moments and for EVT, and that it is always one power of $x$ slower than the
+density.
+
+\subsection{Applications}
+Heavy-tailed distributions are essential wherever extreme events are more common than the normal
+model predicts:
+\textbf{Finance} (stock returns, insurance claims, market crashes);
+\textbf{network traffic} (file sizes, web request delays);
+\textbf{environmental data} (flood levels, earthquake magnitudes);
+\textbf{actuarial science} (large insurance losses);
+\textbf{robust statistics} (to avoid sensitivity to outliers).
+
+\paragraph{Conclusion.} Heavy tails are characterised by slow, typically power-law decay, leading to
+a higher probability of extreme values. Unlike light-tailed distributions they may have infinite
+moments (mean, variance), which makes classical statistical methods less reliable. Examples: Pareto,
+Cauchy, low-degree-of-freedom $t$. Understanding heavy tails is crucial in risk assessment, extreme
+value theory, and the modelling of rare but impactful events.
+
+\section{VaR and ES under Heavier Tails: Exercise 1.12}
+
+\begin{example}[1. Normal case]\label{ex:normal}
+If $L\sim\N(\mu,\sigma^2)$, then for $\alpha>1/2$
+\[
+  \VaR_\alpha(L)=\mu+\sigma\Phi^{-1}(\alpha),\qquad
+  \ES_\alpha(L)=\mu+\sigma\frac{\varphi\big(\Phi^{-1}(\alpha)\big)}{1-\alpha},
+\]
+and
+\[
+  \lim_{\alpha\uparrow1}\frac{\ES_\alpha(L)}{\VaR_\alpha(L)}=1,
+\]
+where $\varphi(x)=\Phi'(x)=\exp(-x^2/2)/\sqrt{2\pi}$.
+\der{VaR, ES and the limit}
+Let $Z=(L-\mu)/\sigma\sim\N(0,1)$ and $z_\alpha=\Phi^{-1}(\alpha)>0$ (for $\alpha>1/2$). Since
+$F_L$ is continuous and strictly increasing, $F_L^{\leftarrow}=F_L^{-1}$ and
+\[
+  \VaR_\alpha(L)=\mu+\sigma F_Z^{\leftarrow}(\alpha)=\mu+\sigma z_\alpha .
+\]
+For ES, use Proposition \ref{prop:ES-tails} and substitute $x=\mu+\sigma z$:
+\[
+  \ES_\alpha(L)=\frac{1}{1-\alpha}\int_{\mu+\sigma z_\alpha}^{\infty}
+        x\,\frac{1}{\sigma}\varphi\Big(\frac{x-\mu}{\sigma}\Big)\dd x
+   =\frac{1}{1-\alpha}\int_{z_\alpha}^{\infty}(\mu+\sigma z)\varphi(z)\dd z .
+\]
+Now $\int_{z_\alpha}^\infty\varphi(z)\dd z=1-\alpha$ (this is the first term $\mu$), and for the second
+term use $z\varphi(z)=-\varphi'(z)$:
+\[
+  \int_{z_\alpha}^{\infty} z\varphi(z)\dd z
+   =\Big[-\varphi(z)\Big]_{z_\alpha}^{\infty}=\varphi(z_\alpha),
+\]
+hence $\ES_\alpha(L)=\mu+\sigma\,\varphi(z_\alpha)/(1-\alpha)$, as claimed.
+For the limit, write $z=z_\alpha$ and use Mills' ratio / the standard Gaussian tail asymptotics
+$1-\Phi(z)\sim\varphi(z)/z$ as $z\to\infty$:
+\[
+  \frac{\ES_\alpha(L)}{\VaR_\alpha(L)}
+  =\frac{\mu+\sigma\,\varphi(z)/(1-\Phi(z))}{\mu+\sigma z}
+  \xrightarrow[z\to\infty]{}\frac{\mu+\sigma z}{\mu+\sigma z}=1
+\]
+(the numerator satisfies $\varphi(z)/(1-\Phi(z))\to z$; for $\mu<\infty$ the ratio tends to $1$).
+So in the normal world ES and VaR are asymptotically indistinguishable in \emph{relative} terms, which
+is exactly what fails for heavy tails.
+\end{example}
+
+\begin{example}[2. Pareto]\label{ex:pareto}
+If $L\sim\Par(1/\xi)$, $0<\xi<1$, i.e.\ $\P(L>x)=x^{-1/\xi}$, $x\ge1$, then
+\[
+  \VaR_\alpha(L)=(1-\alpha)^{-\xi},\qquad
+  \ES_\alpha(L)=\frac{\VaR_\alpha(L)}{1-\xi},\qquad
+  \frac{\ES_\alpha(L)}{\VaR_\alpha(L)}=\frac{1}{1-\xi}>1 .
+\]
+Here the difference between VaR and ES matters.
+\der{VaR, ES, ratio}
+\emph{VaR.} $F_L(x)=1-x^{-1/\xi}$ for $x\ge1$ is continuous and strictly increasing on $[1,\infty)$, so
+solve $1-x^{-1/\xi}=\alpha$: $x^{-1/\xi}=1-\alpha$, i.e.\
+$x=(1-\alpha)^{-\xi}=q_\alpha$.
+\emph{ES.} Use Proposition \ref{prop:ES-tails} with $f_L(x)=\frac1\xi x^{-1/\xi-1}$ ($x\ge1$):
+\[
+  \int_{q_\alpha}^{\infty}x f_L(x)\dd x
+  =\frac1\xi\int_{q_\alpha}^{\infty}x^{-1/\xi}\dd x
+  =\frac1\xi\cdot\frac{q_\alpha^{1-1/\xi}}{1/\xi-1}
+  =\frac{q_\alpha^{1-1/\xi}}{1-\xi},
+\]
+where we used $1-1/\xi<0$ so that the antiderivative vanishes at $+\infty$. Dividing by
+$1-\alpha=q_\alpha^{-1/\xi}$:
+\[
+  \ES_\alpha(L)=\frac{q_\alpha^{1-1/\xi}\cdot q_\alpha^{1/\xi}}{1-\xi}
+               =\frac{q_\alpha}{1-\xi}=\frac{\VaR_\alpha(L)}{1-\xi}.
+\]
+The ratio is $1/(1-\xi)>1$ for every $\alpha$, a constant --- no asymptotics needed.
+\end{example}
+
+\begin{example}[3. Student-$t$]\label{ex:t}
+If $L\sim t_\nu$ (Student-$t$ on $\nu$ degrees of freedom), i.e.
+\[
+  f_L(x)=\frac{\Gamma\big(\frac{\nu+1}{2}\big)}{\sqrt{\nu\pi}\Gamma\big(\frac\nu2\big)}
+        \Big(1+\frac{x^2}{\nu}\Big)^{-\frac{\nu+1}{2}},\qquad x\in\real,\ \nu>0,
+\]
+(so that $1-F_L(x)\sim c_\nu x^{-\nu}$, power-law type), then for $\nu>1$
+\[
+  \lim_{\alpha\uparrow1}\frac{\ES_\alpha(L)}{\VaR_\alpha(L)}=\frac{\nu}{\nu-1}>1 .
+\]
+In finance often $\nu\in(2,5)$: with $\nu=3$, $\ES_\alpha(L)$ is $50\%$ larger than $\VaR_\alpha(L)$ in
+the limit for large $\alpha$.
+\der{the limit $\nu/(\nu-1)$ (a general regular-variation computation)}
+Suppose (as for the $t_\nu$) that $\bar F_L(x)\sim c x^{-1/\xi}$ with tail index $\xi>0$; then
+$1-F_L(\VaR_\alpha(L))=1-\alpha$ gives
+\[
+  \VaR_\alpha(L)\sim\big(c/(1-\alpha)\big)^{\xi}\quad(\alpha\uparrow1).
+\]
+Inserting this into the definition,
+\begin{align*}
+  \ES_\alpha(L)&=\frac{1}{1-\alpha}\int_\alpha^1\VaR_u(L)\dd u
+   \sim\frac{1}{1-\alpha}\int_\alpha^1\Big(\frac{c}{1-u}\Big)^{\xi}\dd u\\
+   &=\frac{c^{\xi}}{1-\alpha}\Big[\frac{(1-u)^{1-\xi}}{1-\xi}\Big]_{\alpha}^{1}
+   =\frac{c^{\xi}(1-\alpha)^{-\xi}}{1-\xi}
+   =\frac{\VaR_\alpha(L)}{1-\xi}\quad(\xi<1),
+\end{align*}
+using $\int_\alpha^1(1-u)^{-\xi}\dd u=\frac{(1-\alpha)^{1-\xi}}{1-\xi}$ for $\xi<1$ (for $\xi\ge1$ the
+integral diverges while $\VaR_u$ stays finite, so the two cannot be comparable at all --- in that
+regime ES is infinite or the tail index has to be read directly from the exact df). Hence
+\[
+  \frac{\ES_\alpha(L)}{\VaR_\alpha(L)}\longrightarrow\frac{1}{1-\xi}
+  \qquad(\alpha\uparrow1).
+\]
+For the $t_\nu$ we have $\bar F_L(x)\sim c_\nu x^{-\nu}$, i.e.\ $1/\xi=\nu$, so $\xi=1/\nu$ and the
+limit equals $\dfrac{1}{1-1/\nu}=\dfrac{\nu}{\nu-1}$; for \mbox{$\nu=3$} this is $3/2$, i.e.\ $50\%$ more
+than VaR (in the limit). By contrast, for the Gaussian tail $\xi\to0$ and the ratio tends to $1$, as in
+Example \ref{ex:normal}.
+\textbf{Conclusion:} with power-type (heavier) tails it can make a difference which risk measure one
+chooses!
+\end{example}
+
+\section{Coherence of ES and the Failure of Subadditivity for VaR}
+
+\begin{proposition}[Proposition 6.9 in McNeil et al.\ (2015)]
+For all $0<\alpha<1$ and $L\in L^1$ (i.e.\ $\E|L|<\infty$): $\ES_\alpha(L)$ is coherent. In
+particular, $\ES_\alpha(L)$ is subadditive.
+\end{proposition}
+\begin{proof}[Proof (sketch; postponed to future lectures)]
+See McNeil et al.\ (2015). The representation $\ES_\alpha=\frac{1}{1-\alpha}\int_\alpha^1\VaR_u\dd u$
+shows translation invariance, positive homogeneity and monotonicity immediately; subadditivity is the
+hard part and follows from the representation of ES as a supremum of expectations over a suitable set
+of scenarios, cf.\ Proposition 1 above.
+\end{proof}
+
+VaR always satisfies (Ax1), (Ax3), (Ax4) of coherence, so the only questionable axiom is (Ax2),
+subadditivity. \textbf{Statement: in general VaR is not subadditive.}
+
+\subsection{Pareto example: VaR is superadditive}
+\begin{example}[Heavy-tailedness, Example 6]
+Let $L_1,L_2\stackrel{\text{iid}}{\sim}\Par(1/2)$, i.e.\ $\P(L_1>x)=x^{-1/2}$ for $x\ge1$; note that
+$\E[L_1]=\infty$.
+\begin{enumerate}[label=\arabic*),leftmargin=*]
+  \item One can show (tedious) that
+        \[
+          \P(L_1+L_2>x)\simeq 2x^{-1/2}-x^{-1},\qquad x\ge2 .
+        \]
+  \item Deduce that for all $\alpha\in(0,1)$,
+        \[
+          \VaR_\alpha(L_1+L_2)>\VaR_\alpha(L_1)+\VaR_\alpha(L_2),
+        \]
+        i.e.\ \textbf{$\VaR_\alpha$ is superadditive}.
+\end{enumerate}
+\der{the exact tail of the sum, and the superadditivity}
+\emph{Step 1 (exact survival of the sum).} With $F_{L_1}(y)=1-y^{-1/2}$ and
+$f_{L_1}(y)=\frac12y^{-3/2}$ on $[1,\infty)$, for $x\ge2$,
+\[
+  \P(L_1+L_2\le x)=\int_1^{x-1}\P\big(L_2\le x-y\big)\,f_{L_1}(y)\dd y
+   =\int_1^{x-1}\Big(1-(x-y)^{-1/2}\Big)\frac12y^{-3/2}\dd y .
+\]
+The first piece integrates directly: $\int_1^{x-1}\frac12y^{-3/2}\dd y=[-y^{-1/2}]_1^{x-1}
+=1-(x-1)^{-1/2}$. For the second piece substitute $y=xv$:
+\[
+  \frac12\int_1^{x-1}(x-y)^{-1/2}y^{-3/2}\dd y
+  =\frac{1}{2x}\int_{1/x}^{(x-1)/x}(1-v)^{-1/2}v^{-3/2}\dd v
+  =\frac{1}{2x}\Big[-2(1-v)^{1/2}v^{-1/2}\Big]_{1/x}^{(x-1)/x},
+\]
+because $\frac{\dd}{\dd v}\big[-(1-v)^{1/2}v^{-1/2}\big]\cdot(-2)
+=v^{-3/2}(1-v)^{-1/2}$. Evaluating the bracket gives
+$\frac{1}{x}\big[(x-1)^{1/2}-(x-1)^{-1/2}\cdot1\big]
+=\frac{x-2}{x\sqrt{x-1}}$. Putting the two pieces together,
+\[
+  \P(L_1+L_2\le x)=1-(x-1)^{-1/2}-\frac{x-2}{x\sqrt{x-1}}
+    =1-\frac{2\sqrt{x-1}}{x},
+\]
+hence the exact tail
+\[
+  \boxed{\ \P(L_1+L_2>x)=\frac{2\sqrt{x-1}}{x}=2x^{-1/2}\Big(1-\frac1x\Big)^{1/2},\qquad x\ge2.\ }
+\]
+The form quoted on the slide, $2x^{-1/2}-1/x$, is a leading-order (asymptotic) version of this:
+expanding the exact expression, $2x^{-1/2}-x^{-3/2}+O(x^{-5/2})$, the dominant term is
+$2x^{-1/2}=2\,\P(L_1>x)$, and only that dominant term is needed below. Note the sanity check at
+$x=2$: the exact formula gives $2\sqrt1/2=1$, while $2x^{-1/2}-1/x$ would give $0.914$ --- the sum
+satisfies $L_1+L_2\ge2$ with equality only on a null set, so the exact expression is the correct one.
+\emph{Step 2 (VaR of the marginals).} $F_{L_1}(x)=1-x^{-1/2}$ for $x\ge1$, so solving
+$1-x^{-1/2}=\alpha$ gives $x=(1-\alpha)^{-2}$ and
+\[
+  \VaR_\alpha(L_1)=\VaR_\alpha(L_2)=(1-\alpha)^{-2},\qquad
+  \VaR_\alpha(L_1)+\VaR_\alpha(L_2)=2(1-\alpha)^{-2}.
+\]
+\emph{Step 3 (VaR of the sum).} Write $p=1-\alpha\downarrow0$ and let $q=\VaR_\alpha(L_1+L_2)$. Then
+$q$ solves $\P(L_1+L_2>q)=p$, and for $q$ large the exact tail behaves like $2q^{-1/2}$:
+\begin{align*}
+  2\sqrt{\frac{q-1}{q^2}}=p
+  &\quad\Longrightarrow\quad \frac{4(q-1)}{q^2}=p^2
+  \quad\Longrightarrow\quad q^2p^2-4q+4=0\\
+  &\quad\Longrightarrow\quad
+  q=\frac{2\Big(1+\sqrt{1-p^2}\Big)}{p^2}\sim\frac{4}{p^2}=4(1-\alpha)^{-2},
+\end{align*}
+where the exact root was obtained by solving the quadratic and discarding the other root,
+\[
+  \frac{2\Big(1-\sqrt{1-p^2}\Big)}{p^2}<1 .
+\]
+Comparing with Step 2,
+\[
+  \VaR_\alpha(L_1+L_2)\sim 4(1-\alpha)^{-2}>2(1-\alpha)^{-2}
+   =\VaR_\alpha(L_1)+\VaR_\alpha(L_2),
+\]
+and indeed the inequality holds exactly for every $\alpha$ (not only asymptotically) because
+$2(1+\sqrt{1-p^2})/p^2>2/p^2$. So VaR violates subadditivity already in this simple iid Pareto
+example with infinite mean.
+\end{example}
+
+\begin{example}[Example 7: exponential variables, all moments finite]\label{ex:exp}
+If $L_1,L_2\stackrel{\text{iid}}{\sim}\Exp(1)$ (all moments finite, $\P(L_1>x)=e^{-x}$), then
+$\VaR_\alpha$ is superadditive for $\alpha<0.71$.
+\der{the threshold $\alpha\approx0.71$}
+\emph{Marginals.} $F_{L_1}(x)=1-e^{-x}$ gives
+\[
+  \VaR_\alpha(L_1)=-\log(1-\alpha)=:t\ \ (\text{so } e^{-t}=1-\alpha),\qquad
+  \VaR_\alpha(L_1)+\VaR_\alpha(L_2)=2t .
+\]
+\emph{Sum.} $L_1+L_2\sim\Gamma(2,1)$ with $F(x)=1-e^{-x}(1+x)$ for $x\ge0$; let $x$ be the
+$\alpha$-quantile of the sum, i.e.\ $(1+x)e^{-x}=1-\alpha=e^{-t}$.
+\emph{Superadditivity} is equivalent to $x>2t$, which we now translate into a condition on
+$\alpha$. Since $x\mapsto(1+x)e^{-x}$ is decreasing in the relevant range, $x>2t$ holds iff
+$(1+2t)e^{-2t}>e^{-t}$, i.e.
+\[
+  1+2t>e^{t}
+  \qquad\Longleftrightarrow\qquad t<t^\ast,
+\]
+where $t^\ast$ solves $e^{t}=1+2t$: numerically $t^\ast\approx1.2564$. Finally
+$t=-\log(1-\alpha)<t^\ast\iff \alpha<1-e^{-t^\ast}\approx 1-0.2847=0.7153$. Hence VaR is
+superadditive for $\alpha\lesssim0.715$ (and subadditive for larger $\alpha$: in the far tail the
+Laplace/exponential behaviour prevails and the relative-order statistics of the sum become
+thin-tailed), the number quoted as $0.71$ on the slide. So even with all moments finite,
+subadditivity of VaR can fail --- in the body of the distribution.
+\end{example}
+
+\subsection{A third counterexample: skewness}
+\begin{example}[Exercise 1.16 (Skewness)]
+Take $100$ independent bonds ($T=1$ a, nominal value $100$, $2\%$ yearly coupon, $1\%$ default
+probability, no recovery). Hence, for $i\in\{1,\dots,100\}$, the loss of bond $i$ is
+\[
+  L_i=\begin{cases}-2,&\text{with probability }0.99,\\ 100,&\text{with probability }0.01,\end{cases}
+\]
+where $-2$ is (minus) the coupon received if there is no default and $100$ is the loss of the nominal
+if there is a default. (The slide writes the $0.99$ case as ``$2$''; with the loss convention
+$L_i=-(V_{i,1}-v_{i,0})$ of \eqref{eq:PL} the sign is negative --- the position earns the coupon.)
+Consider the two portfolios
+\[
+  P_1\ \text{``super diversified''}:\ \sum_{i=1}^{100}L_i,
+  \qquad
+  P_2\ \text{``highly concentrated''}:\ 100\,L_1 .
+\]
+Both have the same total nominal exposure, and
+\[
+  \VaR_{0.95}\Big(\sum_{i=1}^{100}L_i\Big)>\VaR_{0.95}\big(100L_1\big),
+\]
+i.e.\ VaR rewards the concentrated portfolio and punishes diversification.
+\der{the general computation (as hinted at on the ``Further analysis'' slide)}
+Write $L_i=-a+(a+b)\tilde L_i$ with $a=2$ (coupon), $b=100$ (nominal) and
+$\tilde L_i\sim\text{B}(1,p)$, $p=0.01$: indeed $\tilde L_i=0\Rightarrow L_i=-2$ and
+$\tilde L_i=1\Rightarrow L_i=-2+102=100$. \emph{Diversified portfolio.} With
+$\tilde L:=\sum_{i=1}^n\tilde L_i\sim\text{B}(n,p)$, $n=100$,
+\[
+  \sum_{i=1}^n L_i=-na+(a+b)\sum_{i=1}^n\tilde L_i=-na+(a+b)\tilde L .
+\]
+Using translation invariance (Ax1) and positive homogeneity (Ax3),
+\[
+  \VaR_\alpha\Big(\sum_{i=1}^n L_i\Big)=-na+(a+b)\,F^{\leftarrow}_{\text{B}(n,p)}(\alpha),
+  \qquad
+  \VaR_\alpha(nL_1)=-na+(a+b)\,n\,F^{\leftarrow}_{\text{B}(1,p)}(\alpha),
+\]
+because $\VaR_\alpha(nL_1)=n\VaR_\alpha(L_1)$ and
+$\VaR_\alpha(L_1)=\VaR_\alpha(-a+(a+b)\tilde L_1)=-a+(a+b)F^{\leftarrow}_{\text{B}(1,p)}(\alpha)$.
+Therefore (the coupon $a$ and the nominal $b$ cancel!)
+\[
+  \VaR_\alpha\Big(\sum_{i=1}^n L_i\Big)>\VaR_\alpha(nL_1)
+  \iff F^{\leftarrow}_{\text{B}(n,p)}(\alpha)>n\,F^{\leftarrow}_{\text{B}(1,p)}(\alpha).
+\]
+Now $F^{\leftarrow}_{\text{B}(1,p)}(\alpha)=0$ for $\alpha\le1-p$ and $=1$ for $\alpha>1-p$, and
+$F^{\leftarrow}_{\text{B}(n,p)}(\alpha)\in\{0,1,\dots,n\}$. Hence
+\begin{itemize}[nosep]
+  \item for $\alpha\le1-p$: superadditivity holds iff
+        $F^{\leftarrow}_{\text{B}(n,p)}(\alpha)>0\iff\alpha>\P(\tilde L=0)=(1-p)^n$;
+  \item for $\alpha>1-p$: superadditivity would require
+        $F^{\leftarrow}_{\text{B}(n,p)}(\alpha)>n$, which is impossible.
+\end{itemize}
+So
+\[
+  \boxed{\ \text{superadditivity}\iff (1-p)^n<\alpha\le1-p\ }
+\]
+independent of the coupon and the nominal, exactly as claimed on the slide. For $n=100$, $p=0.01$:
+$(1-p)^n=0.99^{100}\approx0.366$, so superadditivity holds for $0.366<\alpha\le0.99$. \emph{Numbers.}
+Recall $F^{\leftarrow}_{\text{B}(n,p)}(\alpha)$ is the smallest $k$ with $\P(\tilde L\le k)\ge\alpha$.
+$(1-\alpha)=(0.99)^{100}\Rightarrow k=0$; $\alpha=0.95\Rightarrow k=3$; $\alpha=0.99\Rightarrow k=4$;
+$\alpha=0.995\Rightarrow k=4$ as well, while $F^{\leftarrow}_{\text{B}(1,0.01)}(\alpha)=0$ for
+$\alpha\le0.99$ and $=1$ for $\alpha>0.99$. Hence
+\[
+  \VaR_{0.95}\Big(\sum L_i\Big)=-200+102\cdot3=106,\quad
+  \VaR_{0.95}(100L_1)=-200+10200\cdot0=-200,
+\]
+\[
+  \VaR_{0.99}\Big(\sum L_i\Big)=-200+102\cdot4=208,\quad
+  \VaR_{0.99}(100L_1)=-200+10200\cdot0=-200,
+\]
+and at the $99.5\%$ level the concentrated portfolio switches to its catastrophe scenario,
+\[
+  \VaR_{0.995}(100L_1)=-200+10200=10000,
+\]
+whereas the diversified one barely moves ($208$). The
+concentrated portfolio has a quantile of $-200$ up to the $99\%$ level (it almost surely earns all
+coupons) while its $1\%$ tail is catastrophic; the diversified portfolio has a \emph{higher}
+quantile ($106$ at $95\%$, $208$ at $99\%$), simply because it almost surely collects some defaults.
+This is the ``skewness'' face of the failure of subadditivity.
+\end{example}
+
+\subsection{VaR is subadditive in the multivariate normal world}
+\begin{example}[Normality, the ``garden of Eden'']
+Let $\alpha>1/2$ and
+\[
+  (L_1,L_2)\sim \N_2(\boldsymbol\mu,\Sigma),\qquad
+  \Sigma=\begin{pmatrix}\sigma_1^2&\rho\sigma_1\sigma_2\\ \rho\sigma_1\sigma_2&\sigma_2^2\end{pmatrix},
+\]
+then $L_1+L_2\sim\N\big(\mu_1+\mu_2,\ \sigma_1^2+\sigma_2^2+2\rho\sigma_1\sigma_2\big)$. Hence, with
+$z_\alpha=\Phi^{-1}(\alpha)>0$,
+\[
+  \VaR_\alpha(L_1+L_2)=\mu_1+\mu_2+\sqrt{\sigma_1^2+\sigma_2^2+2\rho\sigma_1\sigma_2}\;z_\alpha
+  \le\mu_1+\mu_2+(\sigma_1+\sigma_2)z_\alpha=\VaR_\alpha(L_1)+\VaR_\alpha(L_2),
+\]
+so VaR is subadditive in this model.
+\der{the Cauchy--Schwarz step}
+Cauchy--Schwarz for the inner product $\langle X,Y\rangle=\E[XY]$ gives $|\rho|\le1$; more
+elementarily, the quadratic form $\sigma_1^2+\sigma_2^2+2\rho\sigma_1\sigma_2$ is non-negative
+definite iff $|\rho|\le1$, and
+\[
+  \sigma_1^2+\sigma_2^2+2\rho\sigma_1\sigma_2\le\sigma_1^2+\sigma_2^2+2\sigma_1\sigma_2
+  =(\sigma_1+\sigma_2)^2
+\]
+whenever $\rho\le1$. Taking square roots and multiplying by $z_\alpha>0$ gives the claim. Note where
+each ingredient is used: $\rho\le1$ (dependence), $z_\alpha>0$ (i.e.\ $\alpha>1/2$), and normality.
+\end{example}
+
+Still, one can show that if $L_i\sim\N(\mu_i,\sigma_i^2)$, $i\in\{1,2\}$, then there exists a joint
+model for $(L_1,L_2)$ with these marginals under which VaR is \emph{not} subadditive.
+Proposition 4.4 of MFE (2015) shows that VaR is coherent for all elliptical models --- the ``garden of
+Eden'' of risk management.
+
+\paragraph{Conclusion.} Watch out for superadditivity whenever one of
+\begin{itemize}[nosep]
+  \item \textbf{heavy-tailedness},
+  \item \textbf{skewness}, or
+  \item \textbf{(special) dependence}
+\end{itemize}
+is present (or is statistically hinted at).
+
+\section{Further Reading}
+
+\paragraph{VaR --- badly defined!} ``VaR is the maximum expected loss of a portfolio over a given time
+horizon with a certain confidence level'' is mathematically meaningless and potentially misleading:
+in no sense is VaR a maximum loss. We can lose more, sometimes much more, depending on the heaviness
+of the tail of the loss distribution. The ``bible'' on VaR is the book by Philippe Jorion
+(Jorion 2007).
+
+\begin{itemize}[nosep]
+  \item On methods for QRM: McNeil, Frey, Embrechts (2015);
+  \item on risk management: Crouhy, Galai, Mark (2012);
+  \item on VaR: Jorion (2007).
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{artzner1999} Artzner, P., Delbaen, F., Eber, J.\,M., Heath, D. (1999),
+  \emph{Coherent measures of risk}, Mathematical Finance \textbf{9}, 203--228.
+\bibitem{bis2012} BIS (2012), \emph{Fundamental review of the trading book},
+  \url{http://www.bis.org/publ/bcbs219.pdf} (2012-02-03).
+\bibitem{crouhy2012} Crouhy, M., Galai, D., Mark, R. (2012), \emph{Risk Management}, 2nd ed.,
+  New York: McGraw-Hill.
+\bibitem{jorion2007} Jorion, P. (2007), \emph{Value at Risk: The New Benchmark for Managing
+  Financial Risk}, 3rd ed., New York: McGraw-Hill.
+\bibitem{mfe2015} McNeil, A.\,J., Frey, R., Embrechts, P. (2015), \emph{Quantitative Risk
+  Management: Concepts, Techniques, Tools}, Princeton University Press.
+\end{thebibliography}
+
+\end{document}
