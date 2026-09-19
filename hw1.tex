@@ -1,15 +1,15 @@
 \documentclass{MFM-hw} % You must have the MFM-hw.cls file in your project or working directory (i.e. the same directory as this document) 
 
-\HWauthor{Wei Qi}{226010267@link.cuhk.edu.cn} % Put your name and CUHK-SZ e on this line
+\HWauthor{Wei Qi}{226010267@link.cuhk.edu.cn} % Put your name and CUHK-SZ e-mail on this line
 \HWno{1} % Enter the number of the homework you are working on
-\HWcourse{MFM 5210} % Enter the course department and number here
+\HWcourse{MFM 5130} % Enter the course department and number here
 \date{Sep 18, 2026}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{bbm} % For \mathbbm{1}
-%usepackage{hyperref}
+% \usepackage{hyperref}
 
 \newcommand{\VaR}{\operatorname{VaR}}
 \newcommand{\ES}{\operatorname{ES}}
@@ -110,7 +110,7 @@ which shows the positive homogeneity of $\ES_t$. \qed
 Show for $\alpha \in (0,1)$,
 \begin{align*}
     &\ES_{\alpha}(L) = \frac{\E((L - F_L^{\leftarrow}(\alpha))_+)}{1-\alpha} +F_L^{\leftarrow}(\alpha),\\
-    &\ES_{\alpha}(L) = \frac{\E(L\mathbbm{1}_{\{L>F_L^{\leftarrow}(\alpha)\}})+F_L^{\leftarrow}(1-\alpha-\bar{F_L}(F_L^{\leftarrow}(\alpha)))}{1-\alpha}.
+    &\ES_{\alpha}(L) = \frac{\E(L\mathbbm{1}_{\{L>F_L^{\leftarrow}(\alpha)\}})+F_L^{\leftarrow}(\alpha)\bigl(1-\alpha-\bar{F}_L(F_L^{\leftarrow}(\alpha))\bigr)}{1-\alpha}.
 \end{align*}
 Hence show that if $F_L$ is continuous at $F_L^{\leftarrow}(\alpha)$, then
 \[
@@ -174,7 +174,7 @@ $F_Y(y)$ is non-decreasing and right-continuous, and $F_Y(0) = F_Y(0+) = F_L(F_L
     F_Y^{\leftarrow}(u) &= 
     \begin{cases}
         0, &0 \le u <  F_L(F_L^{\leftarrow}(\alpha)),\\
-        \inf\{y \in \real:F_L(y + F_L^{\leftarrow}(\alpha)) \le u\}, & F_L(F_L^{\leftarrow}(\alpha)) \le u \le 1,
+        \inf\{y \in \real:F_L(y + F_L^{\leftarrow}(\alpha)) \ge u\}, & F_L(F_L^{\leftarrow}(\alpha)) \le u \le 1,
     \end{cases}\\
     &=
     \begin{cases}
@@ -182,7 +182,7 @@ $F_Y(y)$ is non-decreasing and right-continuous, and $F_Y(0) = F_Y(0+) = F_L(F_L
         F_L^{\leftarrow}(u) - F_L^{\leftarrow}(\alpha), \qquad\qquad\qquad\quad & F_L(F_L^{\leftarrow}(\alpha)) \le u \le 1.
     \end{cases}
 \end{align*}
-It can be noticed that when $\alpha \le u \le F_L(F_L^{\leftarrow}(\alpha))$, $F_L^{\leftarrow}(u) = F_L^{\leftarrow}(\alpha)$. The above fomula can be also written as
+It can be noticed that when $\alpha \le u \le F_L(F_L^{\leftarrow}(\alpha))$, $F_L^{\leftarrow}(u) = F_L^{\leftarrow}(\alpha)$. The above formula can also be written as
 \begin{align*}
     F_Y^{\leftarrow}(u) = 
     \begin{cases}
@@ -212,8 +212,8 @@ which is
     &=\frac{\E((L - F_L^{\leftarrow}(\alpha)){\mathbbm{1}_{\{L>F_L^{\leftarrow}(\alpha)\}}})}{1-\alpha} +F_L^{\leftarrow}(\alpha) \\
     &=\frac{\E(L\mathbbm{1}_{L>F_L^{\leftarrow}(\alpha)})-F_L^{\leftarrow}(\alpha)\E(\mathbbm{1}_{L>F_L^{\leftarrow}(\alpha)})}{1-\alpha} +F_L^{\leftarrow}(\alpha) \\
     &=\frac{\E(L\mathbbm{1}_{L>F_L^{\leftarrow}(\alpha)})-F_L^{\leftarrow}(\alpha)\P(L>F_L^{\leftarrow}(\alpha))}{1-\alpha} +F_L^{\leftarrow}(\alpha) \\
-    &=\frac{\E(L\mathbbm{1}_{L>F_L^{\leftarrow}(\alpha)})-F_L^{\leftarrow}(\alpha)\bar{F}_L(F_L^{\leftarrow})(\alpha))}{1-\alpha} +F_L^{\leftarrow}(\alpha)\\
-    &=\frac{\E(L\mathbbm{1}_{\{L>F_L^{\leftarrow}(\alpha)\}})+F_L^{\leftarrow}(1-\alpha-\bar{F_L}(F_L^{\leftarrow}(\alpha)))}{1-\alpha}, 
+    &=\frac{\E(L\mathbbm{1}_{L>F_L^{\leftarrow}(\alpha)})-F_L^{\leftarrow}(\alpha)\bar{F}_L(F_L^{\leftarrow}(\alpha))}{1-\alpha} +F_L^{\leftarrow}(\alpha)\\
+    &=\frac{\E(L\mathbbm{1}_{\{L>F_L^{\leftarrow}(\alpha)\}})+F_L^{\leftarrow}(\alpha)\bigl(1-\alpha-\bar{F}_L(F_L^{\leftarrow}(\alpha))\bigr)}{1-\alpha}, 
 \end{align*}
 where
 \[
@@ -241,7 +241,7 @@ where $\Phi$ and $\varphi$ are the CDF and PDF of a standard normal distribution
 
 \textbf{Proof: }Let random variable $X = (L - \mu)/\sigma$, then $X \sim \normal(0,1)$ and $L = \mu + \sigma X$. By translation invariance and positive homogeneity of $\VaR$ and $\ES$, we have
 \[
-    \VaR_{\alpha}(L) = \VaR_{\alpha}(\mu + \sigma X) = \mu + \sigma \VaR_{\alpha}(X) = \mu + \sigma \Phi^{-1}(X).  
+    \VaR_{\alpha}(L) = \VaR_{\alpha}(\mu + \sigma X) = \mu + \sigma \VaR_{\alpha}(X) = \mu + \sigma \Phi^{-1}(\alpha).  
 \]
 \[
     \ES_{\alpha}(L) = \ES_{\alpha}(\mu + \sigma X) = \mu + \sigma \ES_{\alpha}(X),
@@ -276,9 +276,9 @@ So
 
 By L'Hôpital's rule,
 \[
-    \lim\limits_{\alpha \rightarrow 1^{-}} \frac{\ES_{\alpha}(X)}{\VaR_{\alpha}(X)} = \lim\limits_{u \rightarrow + \infty} \frac{\varphi(u)}{u[1-\Phi(u)]} = \lim\limits_{u \rightarrow + \infty} \frac{-u\varphi(u)}{1-\Phi(u)-u\varphi(u)} = \lim\limits_{u \rightarrow + \infty} \frac{(u^2-1)\varphi(u)}{(u^2-2)\varphi(u)} = 1,
+    \lim\limits_{\alpha \rightarrow 1^{-}} \frac{\ES_{\alpha}(X)}{\VaR_{\alpha}(X)} = \lim\limits_{u \rightarrow + \infty} \frac{\varphi(u)}{u[1-\Phi(u)]} = \lim\limits_{u \rightarrow + \infty} \frac{-u\varphi(u)}{1-\Phi(u)-u\varphi(u)} = \lim\limits_{u \rightarrow + \infty} \frac{1}{1-\frac{1-\Phi(u)}{u\varphi(u)}} = 1,
 \]
-hence
+where the last step uses $\varphi(u)/(1-\Phi(u)) \sim u$, which gives $(1-\Phi(u))/(u\varphi(u)) \sim u^{-2} \rightarrow 0$. Hence
 \[
     \lim\limits_{\alpha \rightarrow 1^{-}} \frac{\ES_{\alpha}(L)}{\VaR_{\alpha}(L)} = \lim\limits_{\alpha \rightarrow 1^{-}}\frac{\mu + \sigma\ES_{\alpha}(X)}{\mu + \sigma \VaR_{\alpha}(X)} = \lim\limits_{\alpha \rightarrow 1^{-}}\frac{\mu/\ES_{\alpha}(X) + \sigma}{\mu/\VaR_{\alpha}(X) + \sigma} = 1.
 \]\qed
@@ -286,7 +286,7 @@ hence
 \HWproblem
 If $L \sim t_{\nu}$ (Student-t on $\nu$ degrees of freedom), that is
 \[
-    f_L(x) = \frac{\Gamma(\frac{\nu-1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})}\left(1+\frac{x^2}{\nu}\right)^{-\frac{\nu+1}{2}},\quad x \in \real, \nu > 0,
+    f_L(x) = \frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})}\left(1+\frac{x^2}{\nu}\right)^{-\frac{\nu+1}{2}},\quad x \in \real, \nu > 0,
 \]
 show
 \[
@@ -299,26 +299,26 @@ Then show that for $\nu > 1$,
 
 \textbf{Proof: }When $x \rightarrow + \infty$, $1-F_L(x) \rightarrow 0$ and $x^{-v} \rightarrow 0$. By L'Hôpital's rule,
 \[
-\lim\limits_{x \rightarrow +\infty} \frac{1-F_L(x)}{x^{-\nu}} = \lim\limits_{x \rightarrow +\infty} \frac{f_L(x)}{\nu x^{-\nu-1}} = \lim\limits_{x \rightarrow +\infty}\frac{\Gamma(\frac{\nu-1}{2})}{\nu\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})} \left(\frac{1}{x^2} + \frac{1}{\nu} \right)^{-\frac{\nu+1}{2}} = c,
+\lim\limits_{x \rightarrow +\infty} \frac{1-F_L(x)}{x^{-\nu}} = \lim\limits_{x \rightarrow +\infty} \frac{f_L(x)}{\nu x^{-\nu-1}} = \lim\limits_{x \rightarrow +\infty}\frac{\Gamma(\frac{\nu+1}{2})}{\nu\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})} \left(\frac{1}{x^2} + \frac{1}{\nu} \right)^{-\frac{\nu+1}{2}} = c,
 \]
 where c is a constant as
 \[
-c = \frac{\Gamma(\frac{\nu-1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})} \nu^{\frac{\nu-1}{2}},
+c = \frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})} \nu^{\frac{\nu-1}{2}},
 \]
 hence
 \[
     1-F_L(x) \sim cx^{-\nu}, \quad x \rightarrow +\infty.
 \]
 
-Because $F_L(x)$ is continuous and strictly increasing, $F_L(t)^{\leftarrow} = F_L^{-1}(t)$ for any $t \in (0,1)$. Let $u = \VaR_{\alpha}(L) = F_L^{-1}(\alpha)$. Then when $\alpha \rightarrow 1^{-}$, $\VaR_{\alpha}(L) \rightarrow +\infty$ and $\ES_{\alpha}(L) \rightarrow + \infty$. We have
+Because $F_L(x)$ is continuous and strictly increasing, $F_L^{\leftarrow}(t) = F_L^{-1}(t)$ for any $t \in (0,1)$. Let $u = \VaR_{\alpha}(L) = F_L^{-1}(\alpha)$. Then when $\alpha \rightarrow 1^{-}$, $\VaR_{\alpha}(L) \rightarrow +\infty$ and $\ES_{\alpha}(L) \rightarrow + \infty$. We have
 \[
-    \ES_{\alpha}(L) = \frac{1}{1-\alpha}\int_{\alpha}^1F_L^{-1}(t)\dd t \stackrel{t\triangleq F_L^{-1}(t)}{=\joinrel=\joinrel=\joinrel=\joinrel=\joinrel=} \frac{1}{1-F_L(u)}\int_{u}^{+\infty} tf_L(t)\dd t,
+    \ES_{\alpha}(L) = \frac{1}{1-\alpha}\int_{\alpha}^1F_L^{-1}(t)\dd t \stackrel{x \triangleq F_L^{-1}(t)}{=\joinrel=\joinrel=\joinrel=\joinrel=\joinrel=} \frac{1}{1-F_L(u)}\int_{u}^{+\infty} tf_L(t)\dd t,
 \]
 thus for $\nu > 1$
 \begin{align*}
     \lim\limits_{\alpha \rightarrow 1^{-}} \frac{\ES_{\alpha}(L)}{\VaR_{\alpha}(L)} &= \lim\limits_{u \rightarrow +\infty} \frac{1}{u(1-F_L(u))}\int_{u}^{+\infty} tf_L(t)\dd t = \lim\limits_{u \rightarrow +\infty} \frac{\int_{u}^{+\infty} tf_L(t)\dd t}{cu^{-\nu+1}}\\
     &=\lim\limits_{u \rightarrow +\infty} \frac{-u f_L(u)}{c(-\nu+1)u^{-\nu}} =\lim\limits_{u \rightarrow +\infty} \frac{f_L(u)}{c(\nu-1)u^{-\nu-1}}\\
-    &=\frac{\Gamma(\frac{\nu-1}{2})}{c(\nu-1)\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})}\lim\limits_{u \rightarrow +\infty}\left(\frac{1}{u^2} + \frac{1}{\nu}\right)^{-\frac{\nu+1}{2}}\\
+    &=\frac{\Gamma(\frac{\nu+1}{2})}{c(\nu-1)\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})}\lim\limits_{u \rightarrow +\infty}\left(\frac{1}{u^2} + \frac{1}{\nu}\right)^{-\frac{\nu+1}{2}}\\
     &=\frac{1}{\nu-1}\nu^{-\frac{\nu-1}{2}}\nu^{\frac{\nu+1}{2}}\\
     &=\frac{\nu}{\nu-1} > 1.
 \end{align*}
@@ -371,7 +371,7 @@ since \(0<1-\xi<1\). \qed
 \HWsubproblem
 Show that $\E(L_1) = \infty$\\
 
-\textbf{Proof: } The probability distribution function of $L_1$ is
+\textbf{Proof: } The probability density function of $L_1$ is
 \[
     f_L(x) = [1-\P(L_1 > x)]' = (1-x^{-\frac12})' = \frac12 x^{-{\frac32}}, \quad x\ge 1.
 \]
@@ -386,11 +386,11 @@ Show that $L_1$ has a heavy tail, i.e.
     \E(e^{tL_1}) = \infty \quad \text{for all } t>0.
 \]\\
 
-\textbf{Proof: }the expectation of moment generating function is
+\textbf{Proof: }The moment generating function of $L_1$ at $t>0$ is
 \begin{align*}
-    \E(e^{tL_1}) = \int_1^{+\infty} e^{tx} f_L(x) \dd x = \int_1^{+\infty} e^{tx} \frac12x^{-\frac{3}{2}} = \frac12 \int_1^{+\infty} x^{-\frac32}e^{tx}\dd x,
+    \E(e^{tL_1}) = \int_1^{+\infty} e^{tx} f_L(x) \dd x = \int_1^{+\infty} e^{tx} \frac12x^{-\frac{3}{2}}\dd x = \frac12 \int_1^{+\infty} x^{-\frac32}e^{tx}\dd x,
 \end{align*}
-where the integrand diverge to $+\infty$ for all $ t > 0$ when $x \rightarrow +\infty$, and hence $\E(e^{tL_1}) = +\infty$ and $L_1$ has a heavy tail. \qed \\
+where for every fixed $t>0$ the integrand $x^{-\frac32}e^{tx}$ is positive and diverges to $+\infty$ as $x \rightarrow +\infty$: given any $M>0$ there is $x_0$ with $x^{-\frac32}e^{tx} \ge M$ for all $x \ge x_0$, so the integral is at least $\frac{M}{2}\int_{x_0}^{+\infty}\dd x = +\infty$. Hence $\E(e^{tL_1}) = +\infty$ for all $t>0$, i.e. $L_1$ has a heavy tail. \qed \\
 
 \HWsubproblem
 Show that $\P(L_1+L_2 > x) = 2\sqrt{x-1}/x, x\ge 2$.\\
@@ -442,9 +442,10 @@ that is, $\VaR_{\alpha}$ is superadditive.\\
 
 \textbf{Proof: }Let $p = \VaR_{\alpha}(L_1+L_2)$, $q = \VaR_{\alpha}(L_1) = \VaR_{\alpha}(L_2)$. From the result of Problem 5,
 \[
-    q = \frac{1}{(1-\alpha)^2},
+    q = \frac{1}{(1-\alpha)^2}
 \]
-by definition of value at risk, $\P(L_1+L_2 > p) = 2\sqrt{x-1}/x = 1- \alpha, \quad p \ge 2$, which can derive that
+(the same formula with $\xi = 2$, that is tail index $1/\xi = 1/2$; note that $\E(L_1) = \infty$, as shown above),
+whereas, by the definition of value at risk, $\P(L_1+L_2 > p) = 2\sqrt{p-1}/p = 1- \alpha, \quad p \ge 2$, which gives
 \[
     p = \frac{2(1+\sqrt{2\alpha-\alpha^2})}{(1-\alpha)^2},
 \]
@@ -452,11 +453,11 @@ and the other solution
 \[
     p' = \frac{2(1-\sqrt{2\alpha-\alpha^2})}{(1-\alpha)^2}
 \]
-is eliminated because $p \ge 2$. But $p' \ge 2$ only derives that
+has to be eliminated: the quantile must satisfy $p \ge 2$ (no smaller value is possible because $L_1+L_2 \ge 2$), whereas $p' < 2$ for every $\alpha \in (0,1)$. Indeed, with $s = 2\alpha-\alpha^2 \in (0,1]$,
 \[
-    \alpha = 0 \text{ or }\alpha = 2,    
+    p' \ge 2 \iff 1-\sqrt{s} \ge (1-\alpha)^2 \iff \sqrt{s} \le s \iff s = 1,
 \]
-which contradicts $\alpha \in (0,1)$.
+so $p' \ge 2$ would force $\alpha = 1$, which is excluded by $\alpha \in (0,1)$.
 
 Hence
 \[
@@ -468,7 +469,7 @@ which is
 \]\qed
 
 \HWproblem
-(Skewness)In the market, there are 100 independent bonds $L_i,i\in\{1,2,\cdots,100\}$ with the same nominal value of 100, 2\% yearly coupon, 1\% default probability and no recovery, i.e. $L_i, i\in\{1,2,\cdots,100\}$ independently following the below distributions
+(Skewness) In the market
 \[
     L_i = 
     \begin{cases}
@@ -476,9 +477,9 @@ which is
         100, &\text{with probability 0.01}.
     \end{cases}
 \]
-An investor would like to buy 100 bonds and hopes that the risk can be managed. There are two strategies(portfolios) for the investor to consider:\\
+There are two strategies (portfolios) for the investor to consider:\\
 "Super Diversified": $\mathcal{P}_1 = \sum_{i=1}^{100} L_i$;\\
-"Highly Concentrated": $\mathcal{P}_2 = 100l_1$.
+"Highly Concentrated": $\mathcal{P}_2 = 100L_1$.
 
 \HWsubproblem
 Show that the two strategies have the same expected loss.\\
@@ -502,7 +503,7 @@ Help the investor to analyze the potential risk of these two strategies by compa
     \VaR_{0.95}(\mathcal{P}_1) \text{  and  }\VaR_{0.95}(\mathcal{P}_2).
 \]\\
 
-\textbf{Solution: }Let $F_1(x), F_2(x)$ be the cumulated distribution function of $P_1$ and $P_2$. $\mathcal{P}_2$ has only two possible values -200 and 10000, and
+Let $F_1(x), F_2(x)$ be the cumulative distribution functions of $\mathcal{P}_1$ and $\mathcal{P}_2$, respectively.
 \[
     \P(\mathcal{P}_2 = -200) = 0.99, \quad \P(\mathcal{P}_2 = 10000) = 0.01,
 \]
@@ -519,11 +520,11 @@ and
     \VaR_{0.95}(\mathcal{P}_2) = \inf \{x\in \real: F_2(x) \ge 0.95\} = -200.
 \]
 
-Let $\mathcal{D}$ be the number of defaulted bonds, then $\mathcal{D} \sim B(100, 0.01)$, i.e. the binomial distribution with parameters 100 and 0.01. And $\mathcal{P}_1 = -2(100-\mathcal{D})+100\mathcal{D} = 102\mathcal D - 200$. Calculate the probablity mass function(PMF) and cumulated distribution function(CDF) for the first few $\mathcal{D}$'s possible values.
+Calculate the probability mass function (PMF) and the cumulative distribution function (CDF) for the first few possible values of $\mathcal{D}$.
 \begin{table}[h]
     \centering
-    \renewcommand{\arraystretch}{1.5} % 将行高放大至 1.5 倍
-    \setlength{\tabcolsep}{20pt}     % 将列与列之间的间距增加到 20pt
+    \renewcommand{\arraystretch}{1.5} % stretch the rows to 1.5x
+    \setlength{\tabcolsep}{20pt}     % widen the separation between columns to 20pt
     \begin{tabular}{r r r r}
         \hline
         $\mathcal{D}$ & $\mathcal{P}_1$ & PMF & CDF \\
@@ -542,18 +543,5 @@ Let $\mathcal{D}$ be the number of defaulted bonds, then $\mathcal{D} \sim B(100
 \]
 
 So the "Highly Concentrated" portfolio has the smaller $\VaR$ — it looks safer at the 95\% level, even though it carries a 1\% chance of a 10,000 loss. This is the skewness of $\VaR$: it is not subadditive and it is blind to everything beyond the confidence quantile. The concentrated portfolio's whole tail risk lives in the 1\% mass above 0.95.
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \end{document}
