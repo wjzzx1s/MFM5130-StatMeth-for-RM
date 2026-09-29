@@ -22,7 +22,7 @@
 
 %% ============================================================
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
-\ProvidesClass{MFM5210}[2026/09/14 MFM 5210 Standard LaTeX document class]
+\ProvidesClass{MFM-hw}[2026/09/14 MFM-hw Standard LaTeX document class]
 
 \LoadClass[a4paper, oneside, 11pt]{article}[2005/09/16]
 %% ============================================================

@@ -41,9 +41,9 @@ Fix any $x \in \mathbb{R}$. On $N^c$,
 $$
 X_2(\omega) \le x \;\Longrightarrow\; X_1(\omega) \le X_2(\omega) \le x ,
 $$
-so $\{X_2 \le x\} \cap N^c \subseteq \{X_1 \le x\}$. Since $N$  is a null set,
+so $\{X_2 \le x\} \cap N^c \subseteq \{X_1 \le x\}$. Since $N$ is a null set,
 $$
- \mathbb{P}(X_1 \le x) \;\ge\; \mathbb{P}(X_2 \le x,\; \omega \in N^c) = \mathbb{P}(X_2 \le x).
+ \mathbb{P}(X_1 \le x) \;\ge\; \mathbb{P}\bigl(\{X_2 \le x\} \cap N^c\bigr) = \mathbb{P}(X_2 \le x).
 $$
 
 Because for every $x$:
@@ -68,7 +68,7 @@ So for any $p \in (t, 1)$,
 \[
     \VaR_p(X_1) \leq \VaR_p(X_2),
 \]
-for any $t \in (0,1)$, hence
+hence
 \[
     \frac{1}{1-t} \int_t^1 \VaR_p(X_1) \dd p \leq \frac{1}{1-t} \int_t^1 \VaR_p(X_2) \dd p,
 \]
@@ -130,7 +130,7 @@ then we have
 \[
     F_Y(y) \ge u \Rightarrow y \ge F_Y^{\leftarrow}(u).
 \]
-Since CDF $F_Y(y)$ is non-decreasing and right-continuous, $\{y \in \real :F_Y(y) \ge u\} = [F_Y^{\leftarrow}(u), +\infty)$, which derives that
+Since CDF $F_Y(y)$ is non-decreasing and right-continuous, $\{y \in \real :F_Y(y) \ge u\} = [F_Y^{\leftarrow}(u), +\infty)$, which implies that
 \[
     F_Y(F_Y^{\leftarrow}(u)) \ge u,
 \]
@@ -143,16 +143,16 @@ Now we get
 \[
     F_Y(y) \ge u \Leftrightarrow y \ge F_Y^{\leftarrow}(u).
 \]
-Let $U$ be a random variable independent from $Y$, satisfying uniform distribution on interval $[0,1]$. Let $Y^{*}(U) = F_Y^{\leftarrow}(U)$. Because
+Let $U$ be a random variable independent of $Y$ and uniformly distributed on the interval $[0,1]$. Let $Y^{*}(U) = F_Y^{\leftarrow}(U)$. Because
 \[
     \P(Y^* \le y) = \P(F_Y^{\leftarrow}(U) \le y) = \P(U \le F_Y(y)) = F_Y(y),  
 \]
-which means $Y^*$ and $Y$ have the same CDF, So
+which means $Y^*$ and $Y$ have the same CDF, so
 \[
     \E(Y) = \E(Y^*) = \int_0^1 Y^*(u)\dd u = \int_0^1 F_Y^{\leftarrow}(u)\dd u.
 \]\qed
 
-\textbf{Proof of original proposition: }Define $Y \in \mathcal{L}_1$ (the problem uses $\E(Y)$, which means $Y \in \mathcal{L}_1$ in default) as
+\textbf{Proof of original proposition: }Define $Y \in \mathcal{L}_1$ (the problem uses $\E(Y)$, which presupposes $Y \in \mathcal{L}_1$) as
 $$
     Y = (L- F_L^{\leftarrow}(\alpha))_{+} = 
     \begin{cases}
@@ -160,7 +160,7 @@ $$
         L - F_L^{\leftarrow}(\alpha), &L >F_L^{\leftarrow}(\alpha)
     \end{cases}
 $$
-Because $L$ has a CDF $F_L(x)$. Fix $\alpha$, the CDF of $L - F_L^{\leftarrow}(\alpha)$ should be $F_L(x + F_L^{\leftarrow}(\alpha))$. Combined with the expression of $Y$, it derives that the CDF of $Y$
+Because $L$ has a CDF $F_L(x)$. Fix $\alpha$, the CDF of $L - F_L^{\leftarrow}(\alpha)$ should be $F_L(x + F_L^{\leftarrow}(\alpha))$. Combined with the expression of $Y$, it follows that the CDF of $Y$
 \[
     F_Y(y) = 
     \begin{cases}
@@ -169,7 +169,7 @@ Because $L$ has a CDF $F_L(x)$. Fix $\alpha$, the CDF of $L - F_L^{\leftarrow}(\
     \end{cases}
 \]
 
-$F_Y(y)$ is non-decreasing and right-continuous, and $F_Y(0) = F_Y(0+) = F_L(F_L^{\leftarrow}(\alpha)), F_Y(0-) = 0$. Hence
+$F_Y(y)$ is non-decreasing and right-continuous, with $F_Y(0) = F_Y(0+) = F_L(F_L^{\leftarrow}(\alpha))$ and $F_Y(0-) = 0$. Hence
 \begin{align*}
     F_Y^{\leftarrow}(u) &= 
     \begin{cases}
@@ -182,7 +182,7 @@ $F_Y(y)$ is non-decreasing and right-continuous, and $F_Y(0) = F_Y(0+) = F_L(F_L
         F_L^{\leftarrow}(u) - F_L^{\leftarrow}(\alpha), \qquad\qquad\qquad\quad & F_L(F_L^{\leftarrow}(\alpha)) \le u \le 1.
     \end{cases}
 \end{align*}
-It can be noticed that when $\alpha \le u \le F_L(F_L^{\leftarrow}(\alpha))$, $F_L^{\leftarrow}(u) = F_L^{\leftarrow}(\alpha)$. The above formula can also be written as
+Note that when $\alpha \le u \le F_L(F_L^{\leftarrow}(\alpha))$, $F_L^{\leftarrow}(u) = F_L^{\leftarrow}(\alpha)$. The above formula can also be written as
 \begin{align*}
     F_Y^{\leftarrow}(u) = 
     \begin{cases}
@@ -220,7 +220,7 @@ where
     \bar{F}_L(u) = \P(L>u) = 1 - F_L(u).
 \]
 
-If $F_L$ is continuous at $F_L^{\leftarrow}(\alpha)$, then $F_L(F_L^{\leftarrow}(\alpha)) = \alpha$, and $\bar{F_L}(F_L^{\leftarrow}(\alpha)) = 1-\alpha$. Substitute it into the expression of $\ES_\alpha(L)$ and we get
+If $F_L$ is continuous at $F_L^{\leftarrow}(\alpha)$, then $F_L(F_L^{\leftarrow}(\alpha)) = \alpha$, and $\bar{F}_L(F_L^{\leftarrow}(\alpha)) = 1-\alpha$. Substitute it into the expression of $\ES_\alpha(L)$ and we get
 \[
     \ES_{\alpha}(L) = \frac{\E(L\mathbbm{1}_{\{L>F_L^{\leftarrow}(\alpha)\}})}{1-\alpha}.
 \]\qed
@@ -257,7 +257,7 @@ hence
     \ES_{\alpha}(L) = \mu + \sigma\frac{\varphi(\Phi^{-1}(\alpha))}{1-\alpha}.
 \]
 
-Let $u = \Phi^{-1}(\alpha)$, thus $\alpha = \Phi(u)$. when $\alpha \rightarrow 1^{-}$, $u \rightarrow +\infty$. Then
+Let $u = \Phi^{-1}(\alpha)$, thus $\alpha = \Phi(u)$. When $\alpha \rightarrow 1^{-}$, $u \rightarrow +\infty$. Then
 \[
     \lim\limits_{\alpha \rightarrow 1^{-}} \VaR_{\alpha}(L) = \lim\limits_{u \rightarrow +\infty} (\mu + \sigma u) = +\infty,
 \]
@@ -297,11 +297,11 @@ Then show that for $\nu > 1$,
     \lim\limits_{\alpha \rightarrow 1^{-}} \frac{\ES_{\alpha}(L)}{\VaR_{\alpha}(L)} = \frac{\nu}{\nu-1} > 1.
 \]\\
 
-\textbf{Proof: }When $x \rightarrow + \infty$, $1-F_L(x) \rightarrow 0$ and $x^{-v} \rightarrow 0$. By L'Hôpital's rule,
+\textbf{Proof: }When $x \rightarrow + \infty$, $1-F_L(x) \rightarrow 0$ and $x^{-\nu} \rightarrow 0$. By L'Hôpital's rule,
 \[
 \lim\limits_{x \rightarrow +\infty} \frac{1-F_L(x)}{x^{-\nu}} = \lim\limits_{x \rightarrow +\infty} \frac{f_L(x)}{\nu x^{-\nu-1}} = \lim\limits_{x \rightarrow +\infty}\frac{\Gamma(\frac{\nu+1}{2})}{\nu\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})} \left(\frac{1}{x^2} + \frac{1}{\nu} \right)^{-\frac{\nu+1}{2}} = c,
 \]
-where c is a constant as
+where $c$ is the constant
 \[
 c = \frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})} \nu^{\frac{\nu-1}{2}},
 \]
@@ -366,7 +366,7 @@ Consequently,
 since \(0<1-\xi<1\). \qed
 
 \HWproblem
-(Heavy-tailedness) Let random variables $L_1,L_2 \stackrel{\text{i.i.d.}}{\sim} \Par(1/2)$, which is, specifically, $\P(L_1 > x) = x^{-1/2}, x \ge 1$.
+(Heavy-tailedness) Let random variables $L_1,L_2 \stackrel{\text{i.i.d.}}{\sim} \Par(1/2)$, that is, $\P(L_1 > x) = x^{-1/2}, x \ge 1$.
 
 \HWsubproblem
 Show that $\E(L_1) = \infty$\\
@@ -405,7 +405,7 @@ Show that $\P(L_1+L_2 > x) = 2\sqrt{x-1}/x, x\ge 2$.\\
 \] 
 then
 \[
-    \P(L_1+L_2 > x) = 1- P(L_1 + L_2 \le x) = 1-\iint\limits_{\Omega} \frac14u^{-\frac32}v^{-\frac32} \dd u\mathrm{d}v
+    \P(L_1+L_2 > x) = 1- \P(L_1 + L_2 \le x) = 1-\iint\limits_{\Omega} \frac14u^{-\frac32}v^{-\frac32} \dd u\dd v
 \]
 where
 \[
@@ -418,7 +418,7 @@ Therefore,
         & = 1 - \frac{1}{2} \int_1^{x-1}u^{-\frac32}\dd u + \frac{1}{2} \int_1^{x-1}u^{-\frac32}(x-u)^{-\frac12} \dd u \\
         & = \frac{1}{\sqrt{x-1}} + \frac12 \int_1^{x-1} u^{-\frac32}(x-u)^{-\frac12} \dd u.
 \end{align*}
-Let $u = x \sin^2 \theta$, $\theta \in [\alpha, \beta]$, where $x\sin^2\alpha = 1$ and $x\sin^2\beta = x-1$, which derive that
+Let $u = x \sin^2 \theta$, $\theta \in [\alpha, \beta]$, where $x\sin^2\alpha = 1$ and $x\sin^2\beta = x-1$, which gives
 \[
     \alpha = \arctan \frac{1}{\sqrt{x-1}}, \quad \beta = \arctan \sqrt{x-1},
 \]
@@ -478,13 +478,13 @@ which is
     \end{cases}
 \]
 There are two strategies (portfolios) for the investor to consider:\\
-"Super Diversified": $\mathcal{P}_1 = \sum_{i=1}^{100} L_i$;\\
-"Highly Concentrated": $\mathcal{P}_2 = 100L_1$.
+``Super Diversified'': $\mathcal{P}_1 = \sum_{i=1}^{100} L_i$;\\
+``Highly Concentrated'': $\mathcal{P}_2 = 100L_1$.
 
 \HWsubproblem
 Show that the two strategies have the same expected loss.\\
 
-\textbf{Proof: } the expected loss of a single bond
+\textbf{Proof: }The expected loss of a single bond is
 \[
     \E(L_i) = 0.99 \times (-2) + 0.01 \times 100 = -0.98,\quad \forall i \in \{1,2,\cdots, 100\}
 \]
@@ -503,7 +503,7 @@ Help the investor to analyze the potential risk of these two strategies by compa
     \VaR_{0.95}(\mathcal{P}_1) \text{  and  }\VaR_{0.95}(\mathcal{P}_2).
 \]\\
 
-\textbf{Solution: }Let $F_1(x), F_2(x)$ be the cumulative distribution functions of $\mathcal{P}_1$ and $\mathcal{P}_2$, respectively.
+\textbf{Solution: }Let $F_1(x), F_2(x)$ be the cumulative distribution functions of $\mathcal{P}_1$ and $\mathcal{P}_2$, respectively, and let $\mathcal{D}$ be the number of bonds whose loss is $100$, so that $\mathcal{D} \sim \mathrm{Bin}(100, 0.01)$ and $\mathcal{P}_1 = 102\mathcal{D} - 200$.
 \[
     \P(\mathcal{P}_2 = -200) = 0.99, \quad \P(\mathcal{P}_2 = 10000) = 0.01,
 \]
@@ -520,7 +520,7 @@ and
     \VaR_{0.95}(\mathcal{P}_2) = \inf \{x\in \real: F_2(x) \ge 0.95\} = -200.
 \]
 
-Calculate the probability mass function (PMF) and the cumulative distribution function (CDF) for the first few possible values of $\mathcal{D}$.
+The PMF of $\mathcal{D}$ and the CDF of $\mathcal{P}_1$ for the first few possible values are
 \begin{table}[h]
     \centering
     \renewcommand{\arraystretch}{1.5} % stretch the rows to 1.5x
@@ -529,8 +529,8 @@ Calculate the probability mass function (PMF) and the cumulative distribution fu
         \hline
         $\mathcal{D}$ & $\mathcal{P}_1$ & PMF & CDF \\
         \hline
-        0 & -200 & 0.366032 & 0.366032 \\
-        1 & -98  & 0.369730 & 0.735762 \\
+        0 & $-200$ & 0.366032 & 0.366032 \\
+        1 & $-98$  & 0.369730 & 0.735762 \\
         2 & 4   & 0.184865 & 0.920627 \\
         3 & 106 & 0.060999 & 0.981626 \\
         4 & 208 & 0.014942 & 0.996568 \\
@@ -542,6 +542,6 @@ Calculate the probability mass function (PMF) and the cumulative distribution fu
     \VaR_{0.95}(\mathcal{P}_1) = 106.
 \]
 
-So the "Highly Concentrated" portfolio has the smaller $\VaR$ — it looks safer at the 95\% level, even though it carries a 1\% chance of a 10,000 loss. This is the skewness of $\VaR$: it is not subadditive and it is blind to everything beyond the confidence quantile. The concentrated portfolio's whole tail risk lives in the 1\% mass above 0.95.
+So the ``Highly Concentrated'' portfolio has the smaller $\VaR$ — it looks safer at the 95\% level, even though it carries a 1\% chance of a 10,000 loss. This is the skewness of $\VaR$: it is not subadditive and it is blind to everything beyond the confidence quantile. The concentrated portfolio's whole tail risk lives in the 1\% mass above 0.95.
 
 \end{document}
