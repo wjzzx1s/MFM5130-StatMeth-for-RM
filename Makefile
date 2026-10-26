@@ -1,6 +1,6 @@
 Makepdf = pdflatex -interaction=nonstopmode -halt-on-error
 LectureNums := 01 02
-HWNums := 1
+HWNums := 1 2
 HWdir := HW
 
 # Homework sources are accepted in HW/ or in the repository root: VPATH resolves either.
@@ -33,7 +33,10 @@ Lecture-%.pdf: Lecture-%.tex
 	$(MAKE) clean-cache
 
 #Build homework
+#Two passes as well: hw2.tex cross-references its own numbered equations, so the labels written
+#into the .aux by the first pass have to be available to the second one.
 hw%.pdf: hw%.tex MFM-hw.cls
+	$(Makepdf) $<
 	$(Makepdf) $<
 	$(MAKE) clean-cache
 
@@ -41,7 +44,7 @@ clean-cache:
 	rm -rf *.aux *.log *.out *.toc
 
 clean-pdf:
-	rm -rf *.pdf
+	rm -f Lecture-*.pdf hw*.pdf
 
 clean-all:
 	$(MAKE) clean-cache
